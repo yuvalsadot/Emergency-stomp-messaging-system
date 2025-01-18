@@ -1,6 +1,9 @@
 package bgu.spl.net.api;
 
-public class MsgEncDec implements MessageEncoderDecoder<T> {
+import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+
+public class MsgEncDec implements MessageEncoderDecoder<String[]> {
     
     // fields
     private byte[] bytes = new byte[1 << 10]; //start with 1k
@@ -13,6 +16,9 @@ public class MsgEncDec implements MessageEncoderDecoder<T> {
     public String[] decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') {
             return frmStr;
+        }
+        else if (nextByte == ':'){
+            pushString(popString());
         }
         else if (nextByte == '\n') {
             pushString(popString());
@@ -37,11 +43,11 @@ public class MsgEncDec implements MessageEncoderDecoder<T> {
     }
 
     private void pushString(String nextString) {
-        if (FrmStrLen >= FrmStr.length) {
-            FrmStr = Arrays.copyOf(FrmStr, FrmStrLen * 2);
+        if (frmStrLen >= frmStr.length) {
+            frmStr = Arrays.copyOf(frmStr, frmStrLen * 2);
         }
 
-        FrmStr[FrmStrLen++] = nextString;
+        frmStr[frmStrLen++] = nextString;
     }
 
     @Override

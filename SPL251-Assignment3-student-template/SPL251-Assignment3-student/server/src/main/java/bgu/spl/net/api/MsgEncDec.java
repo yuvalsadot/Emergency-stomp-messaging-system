@@ -10,7 +10,7 @@ public class MsgEncDec implements MessageEncoderDecoder<T> {
 
     // methods
     @Override
-    public T decodeNextByte(byte nextByte) {
+    public String[] decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') {
             return frmStr;
         }
@@ -45,7 +45,7 @@ public class MsgEncDec implements MessageEncoderDecoder<T> {
     }
 
     @Override
-    public byte[] encode(T message) {
+    public byte[] encode(String[] message) {
         byte[] retEncoded = new byte[1 << 10]; //start with 1k
         int retEncodedLen = 0;
         for (String str : message) {

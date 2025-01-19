@@ -1,6 +1,6 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.impl.stomp.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,6 +19,7 @@ public class Reactor<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
+    private Connections<String[]> connections;
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
@@ -33,6 +34,7 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
+        this.connections = new ConnectionsClass();
     }
 
     @Override

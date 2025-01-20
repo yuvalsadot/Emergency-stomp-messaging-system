@@ -8,15 +8,17 @@ public class ConnectFrame implements StompFrame{
     private String host;
     private String login;
     private String passcode;
+    private int connectionId;
     private String[] message;
 
     // constructor
-    public ConnectFrame(String[] message){
+    public ConnectFrame(String[] message, int connectionId){
         this.frameId = 0;
         this.acceptVersion = message[2];
         this.host = message[4];
         this.login = message[6];
         this.passcode = message[8];
+        this. connectionId = connectionId;
         this.message = message;
     }
 
@@ -25,16 +27,16 @@ public class ConnectFrame implements StompFrame{
         boolean connected = false;
         int userId = SingletonDataBase.getUser(this.login);
         if(userId == -1){
-            String[] user = {this.login, this.passcode, "", ""};
-            SingletonDataBase.addNew(user);
+            User newUser = new User(this.login, this.passcode, this.connectionId);
+            SingletonDataBase.addNewUser(newUser);
             connected = true;
         }
         else{
-            if(SingletonDataBase.connectionIdToUserMap.get(userId)[1] != this.passcode){
-                return errorHandle("Wrong password");
+            if(SingletonDataBase.usersMap.get(userId).getPasscode() != this.passcode){
+                return errorHandle("Wrong passcode");
             }
-            else if(SingletonDataBase.connectionIdToUserMap.get(userId)[2].equals("disconnected")){
-                SingletonDataBase.addExisting(SingletonDataBase.connectionIdToUserMap.get(userId));
+            else if(!SingletonDataBase.usersMap.get(userId).isLoggedIn()){
+                SingletonDataBase.addExistingUser(SingletonDataBase.usersMap.get(userId), this.connectionId);
                 connected = true;
             }
             else {
@@ -58,10 +60,9 @@ public class ConnectFrame implements StompFrame{
         this.frameId = id;
     }
 
-    //TODO - check if the error message is correct
     public String[] errorHandle(String message){
-        if (message.equals("Wrong password")){
-            String[] errorFrame = {"ERROR", "message", ": Wrong password", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
+        if (message.equals("Wrong passcode")){
+            String[] errorFrame = {"ERROR", "message", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
             return errorFrame;
         }
         else if (message.equals("User already connected")){

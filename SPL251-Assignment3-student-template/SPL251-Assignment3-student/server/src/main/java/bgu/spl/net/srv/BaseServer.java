@@ -13,6 +13,7 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<StompMessagingProtocolClass> protocolFactory;
     private final Supplier<MsgEncDec> encdecFactory;
     private ServerSocket sock;
+    // TODO add connectionsClass field & connectionId field
     
     public BaseServer(
             int port,
@@ -37,6 +38,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
+                // TODO add fields to CH constructor: connectionId, connections
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),

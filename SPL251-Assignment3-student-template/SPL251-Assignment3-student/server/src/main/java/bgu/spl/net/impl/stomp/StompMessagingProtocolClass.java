@@ -19,11 +19,12 @@ public class StompMessagingProtocolClass implements StompMessagingProtocol<Strin
         this.connections = connections;
     }
     
+    //TODO add connctionId variable to each frame
     @Override
     public void process(String[] message){
         String currStompCmd = message[0];
         if (currStompCmd.equals("CONNECT")){
-            frame = new ConnectFrame(message);
+            frame = new ConnectFrame(message, connectionId);
         }
         else if (currStompCmd.equals("SEND")){
             frame = new SendFrame(message);
@@ -52,5 +53,4 @@ public class StompMessagingProtocolClass implements StompMessagingProtocol<Strin
         return shouldTerminate;
         
     }
-
 }

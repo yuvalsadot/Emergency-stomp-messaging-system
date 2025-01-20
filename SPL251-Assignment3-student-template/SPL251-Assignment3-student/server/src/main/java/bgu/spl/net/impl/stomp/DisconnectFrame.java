@@ -9,20 +9,14 @@ public class DisconnectFrame implements StompFrame {
 
     // constructor
     public DisconnectFrame(String[] message){
+        this.frameId = 0;
+        this.receipt = message[2];
         this.message = message;
-        if(message[1].equals("receipt")){
-            this.frameId = 0;
-            this.receipt = message[1];
-            this.message = message;
-        }
-        else{
-            // error
-
-        }
     }
     
     // methods
     public String[] handle(){
+
     }
 
     public String[] getFrame(){
@@ -33,7 +27,7 @@ public class DisconnectFrame implements StompFrame {
         this.frameId = id;
     }
 
-    public String[] errorHandle(){
+    public String[] errorHandle(String message){
 
     }
 }

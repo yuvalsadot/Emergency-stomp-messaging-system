@@ -1,9 +1,10 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.impl.stomp.MessageEncoderDecoder;
+import bgu.spl.net.impl.stomp.MessagingProtocol;
 import bgu.spl.net.impl.stomp.MsgEncDec;
 import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
-import bgu.spl.net.api.MessagingProtocol;
+
 import java.io.Closeable;
 import java.util.function.Supplier;
 

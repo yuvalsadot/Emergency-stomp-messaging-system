@@ -1,7 +1,8 @@
 package bgu.spl.net.impl.rci;
 
-import bgu.spl.net.api.MessagingProtocol;
 import java.io.Serializable;
+
+import bgu.spl.net.impl.stomp.MessagingProtocol;
 
 public class RemoteCommandInvocationProtocol<T> implements MessagingProtocol<Serializable> {
 

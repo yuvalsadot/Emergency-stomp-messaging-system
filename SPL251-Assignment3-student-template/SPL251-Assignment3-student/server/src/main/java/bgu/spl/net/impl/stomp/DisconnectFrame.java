@@ -1,5 +1,4 @@
 package bgu.spl.net.impl.stomp;
-import bgu.spl.net.srv.Connections;
 
 public class DisconnectFrame implements StompFrame {
     
@@ -7,16 +6,14 @@ public class DisconnectFrame implements StompFrame {
     private int frameId;
     private String receipt;
     private String[] message;
-    private Connections<String[]> connections;
 
     // constructor
-    public DisconnectFrame(String[] message, Connections<String[]> connections){
+    public DisconnectFrame(String[] message){
         this.message = message;
         if(message[1].equals("receipt")){
             this.frameId = 0;
             this.receipt = message[1];
             this.message = message;
-            this.connections = connections;
         }
         else{
             // error

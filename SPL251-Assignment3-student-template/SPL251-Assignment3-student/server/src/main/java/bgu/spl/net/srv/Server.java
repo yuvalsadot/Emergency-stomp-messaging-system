@@ -1,6 +1,8 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.impl.stomp.MessageEncoderDecoder;
+import bgu.spl.net.impl.stomp.MsgEncDec;
+import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
 import bgu.spl.net.api.MessagingProtocol;
 import java.io.Closeable;
 import java.util.function.Supplier;
@@ -22,8 +24,8 @@ public interface Server<T> extends Closeable {
      */
     public static <T> Server<T>  threadPerClient(
             int port,
-            Supplier<MessagingProtocol<T> > protocolFactory,
-            Supplier<MessageEncoderDecoder<T> > encoderDecoderFactory) {
+            Supplier<StompMessagingProtocolClass> protocolFactory,
+            Supplier<MsgEncDec> encoderDecoderFactory) {
 
         return new BaseServer<T>(port, protocolFactory, encoderDecoderFactory) {
             @Override

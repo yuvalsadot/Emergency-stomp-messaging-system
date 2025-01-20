@@ -8,6 +8,6 @@ public interface StompFrame {
 
     void setFrameId(int id);
 
-    String[] errorHandle();
+    String[] errorHandle(String message);
 
 }

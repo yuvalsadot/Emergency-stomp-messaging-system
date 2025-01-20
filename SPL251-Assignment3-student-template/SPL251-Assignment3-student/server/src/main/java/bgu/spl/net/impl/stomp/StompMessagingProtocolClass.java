@@ -8,47 +8,41 @@ public class StompMessagingProtocolClass implements StompMessagingProtocol<Strin
     private boolean shouldTerminate = false;
     public StompFrame frame;
     int connectionId;
+    int currFrameId;
     Connections<String[]> connections;
     
     // methods
     @Override
     public void start(int connectionId, Connections<String[]> connections){
         this.connectionId = connectionId;
+        this.currFrameId = 0;
         this.connections = connections;
     }
     
     @Override
     public void process(String[] message){
-        // remove the first character if it is '\n' or ':'
-        for (String s : message){
-            if (s.length() > 0){
-                if (s.charAt(0) == '\n' || s.charAt(0) == ':'){
-                    s = s.substring(1);
-                }
-            }
-        }
-
         String currStompCmd = message[0];
         if (currStompCmd.equals("CONNECT")){
-            frame = new ConnectFrame(message, connections);
+            frame = new ConnectFrame(message);
         }
         else if (currStompCmd.equals("SEND")){
-            frame = new SendFrame(message, connections);
+            frame = new SendFrame(message);
         }
         else if (currStompCmd.equals("SUBSCRIBE")){
-            frame = new SubscribeFrame(message, connections);
+            frame = new SubscribeFrame(message);
         }
         else if (currStompCmd.equals("UNSUBSCRIBE")){
-            frame = new UnsubscribeFrame(message, connections);
+            frame = new UnsubscribeFrame(message);
         }
         else if (currStompCmd.equals("DISCONNECT")){
-            frame = new DisconnectFrame(message, connections);
+            frame = new DisconnectFrame(message);
         }
         else{
             // error
         }
 
-        frame.setFrameId(0);
+        frame.setFrameId(currFrameId);
+        currFrameId++;
         String[] response = frame.handle();
         connections.send(connectionId, response);
     }

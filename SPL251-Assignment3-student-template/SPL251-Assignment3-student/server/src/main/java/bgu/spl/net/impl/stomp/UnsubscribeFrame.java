@@ -1,5 +1,4 @@
 package bgu.spl.net.impl.stomp;
-import bgu.spl.net.srv.Connections;
 
 public class UnsubscribeFrame implements StompFrame {
     
@@ -7,16 +6,14 @@ public class UnsubscribeFrame implements StompFrame {
     private int frameId;
     private String id;
     private String[] message;
-    private Connections<String[]> connections;
 
     // constructor
-    public UnsubscribeFrame(String[] message, Connections<String[]> connections){
+    public UnsubscribeFrame(String[] message){
         this.message = message;
         if(message[1].equals("id")){
             this.frameId = 0;
             this.id = message[1];
             this.message = message;
-            this.connections = connections;
         }
         else{
             // error

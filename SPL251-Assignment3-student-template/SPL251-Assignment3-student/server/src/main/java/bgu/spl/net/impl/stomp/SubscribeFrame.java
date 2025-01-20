@@ -1,5 +1,4 @@
 package bgu.spl.net.impl.stomp;
-import bgu.spl.net.srv.Connections;
 
 public class SubscribeFrame implements StompFrame{
     // fields
@@ -7,10 +6,9 @@ public class SubscribeFrame implements StompFrame{
     private String destination;
     private String id;
     private String[] message;
-    private Connections<String[]> connections;
 
     // constructor
-    public SubscribeFrame(String[] message, Connections<String[]> connections){
+    public SubscribeFrame(String[] message){
         int counter = 1;
         int destination = 0, id = 0;
         while((destination != 0 || id != 0) && counter <= 3 && counter < message.length){
@@ -33,7 +31,6 @@ public class SubscribeFrame implements StompFrame{
             this.destination = message[destination + 1];
             this.id = message[id + 1];
             this.message = message;
-            this.connections = connections;
         }
     }
 

@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.stomp;
+package bgu.spl.net.api;
 
 import bgu.spl.net.srv.Connections;
 

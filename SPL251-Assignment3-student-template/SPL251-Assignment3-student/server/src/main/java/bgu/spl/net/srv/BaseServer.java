@@ -13,7 +13,8 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<StompMessagingProtocolClass> protocolFactory;
     private final Supplier<MsgEncDec> encdecFactory;
     private ServerSocket sock;
-    // TODO add connectionsClass field & connectionId field
+    private ConnectionsClass connections;
+    private int handlerId;
     
     public BaseServer(
             int port,
@@ -24,6 +25,8 @@ public abstract class BaseServer<T> implements Server<T> {
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
+        this.connections = new ConnectionsClass();
+        this.handlerId = 0;
     }
 
     @Override
@@ -38,11 +41,13 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
-                // TODO add fields to CH constructor: connectionId, connections
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
+                        protocolFactory.get(),
+                        handlerId,
+                        connections);
+                handlerId++;
                 execute(handler);
             }
         } catch (IOException ex) {
@@ -58,5 +63,4 @@ public abstract class BaseServer<T> implements Server<T> {
     }
 
     protected abstract void execute(BlockingConnectionHandler<T>  handler);
-
 }

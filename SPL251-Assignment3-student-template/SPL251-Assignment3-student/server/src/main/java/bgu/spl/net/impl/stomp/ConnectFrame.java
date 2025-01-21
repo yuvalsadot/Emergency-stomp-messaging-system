@@ -3,7 +3,6 @@ package bgu.spl.net.impl.stomp;
 public class ConnectFrame implements StompFrame{
 
     // fields
-    private int frameId;
     private String acceptVersion;
     private String host;
     private String login;
@@ -13,7 +12,6 @@ public class ConnectFrame implements StompFrame{
 
     // constructor
     public ConnectFrame(String[] message, int connectionId){
-        this.frameId = 0;
         this.acceptVersion = message[2];
         this.host = message[4];
         this.login = message[6];
@@ -25,7 +23,7 @@ public class ConnectFrame implements StompFrame{
     // methods
     public String[] handle(){
         boolean connected = false;
-        int userId = SingletonDataBase.getUser(this.login);
+        int userId = SingletonDataBase.getUserByUsrnm(this.login);
         if(userId == -1){
             User newUser = new User(this.login, this.passcode, this.connectionId);
             SingletonDataBase.addNewUser(newUser);
@@ -51,15 +49,7 @@ public class ConnectFrame implements StompFrame{
             return errorHandle("General Error");
         }
     }
-
-    public String[] getFrame(){
-        return this.message;
-    }
-
-    public void setFrameId(int id){
-        this.frameId = id;
-    }
-
+    
     public String[] errorHandle(String message){
         if (message.equals("Wrong passcode")){
             String[] errorFrame = {"ERROR", "message", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
@@ -73,5 +63,9 @@ public class ConnectFrame implements StompFrame{
             String[] errorFrame = {"ERROR", "message", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The server could not connect you right now, please try again later", "\u0000"};
             return errorFrame;
         }
+    }
+
+    public boolean shouldTerminate(){
+        return false;
     }
 }

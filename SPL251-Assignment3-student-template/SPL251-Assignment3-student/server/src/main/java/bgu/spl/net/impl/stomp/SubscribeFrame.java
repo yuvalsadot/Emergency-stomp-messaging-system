@@ -2,57 +2,53 @@ package bgu.spl.net.impl.stomp;
 
 public class SubscribeFrame implements StompFrame{
     // fields
-    private int frameId;
     private String destination;
-    private String id;
+    private int subscriptionId;
+    private int handlerId;
+    private String receipt;
     private String[] message;
 
     // constructor
-    public SubscribeFrame(String[] message){
-        int counter = 1;
-        int destination = 0, id = 0;
-        while((destination != 0 || id != 0) && counter <= 3 && counter < message.length){
-            if(message[counter].equals("destination")){
-                destination = counter;
-            }
-            else if(message[counter].equals("id")){
-                id = counter;
-            }
-            else{
-                break;
-            }
-            counter += 2;
-        }
-        if(destination == 0 || id == 0){
-            return; //Error
-        }
-        else{
-            this.frameId = 0;
-            this.destination = message[destination + 1];
-            this.id = message[id + 1];
-            this.message = message;
-        }
+    public SubscribeFrame(String[] message, int handlerId){
+       this.destination = message[2];
+       this.subscriptionId = Integer.parseInt(message[4]);
+       this.receipt = message[6];
+       this.handlerId = handlerId;
+       this.message = message;
     }
 
     // methods
     public String[] handle(){
-
+        int userId = SingletonDataBase.getUserByHndlrId(this.handlerId);
+        switch (SingletonDataBase.addUserToChannel(destination, userId, subscriptionId)) {
+            case 0:
+                String[] response = {"RECEIPT", "receipt-id", receipt, "\n", "\u0000"};
+                return response;
+            case 1:
+                return errorHandle("User already subscribed to this channel");
+            case 2:
+                return errorHandle("Channel does not exist"); 
+            default:
+                return null;
+        }
     }
 
-    public String[] getFrame(){
-        return this.message;
+    public String[] errorHandle(String message){
+        if (message.equals("User already subscribed to this channel")){
+            String[] errorFrame = {"ERROR", "message", ": Already subsricbed", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The user is already subscribed to this channel, no need to resubscribe", "\u0000"};
+            return errorFrame;
+        }
+        else if (message.equals("Channel does not exist")){
+            String[] errorFrame = {"ERROR", "message", ": Channel does not exist", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You need to create this channel before you subscribe", "\u0000"};
+            return errorFrame;
+        }
+        else{
+            String[] errorFrame = {"ERROR", "message", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The server could not subscribe you right now, please try again later", "\u0000"};
+            return errorFrame;
+        }
     }
 
-    public void setFrameId(int id){
-        this.frameId = id;
+    public boolean shouldTerminate(){
+        return false;
     }
-
-    public String[] errorHandle(){
-
-    }
-
-
-}
-
-
 }

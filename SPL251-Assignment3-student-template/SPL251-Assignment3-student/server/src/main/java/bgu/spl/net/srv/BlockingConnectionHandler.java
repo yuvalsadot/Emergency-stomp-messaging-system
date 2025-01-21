@@ -9,20 +9,27 @@ import java.net.Socket;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<String[]> {
 
+    // fields
     private final StompMessagingProtocolClass protocol;
     private final MsgEncDec encdec;
     private final Socket sock;
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
+    private int handlerId;
+    private ConnectionsClass connections;
 
-    public BlockingConnectionHandler(Socket sock, MsgEncDec reader, StompMessagingProtocolClass protocol) {
+    // constructor
+    public BlockingConnectionHandler(Socket sock, MsgEncDec reader, StompMessagingProtocolClass protocol, int handlerId, ConnectionsClass connections) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+        this.handlerId = handlerId;
+        this.connections = connections;
+        this.protocol.start(handlerId, connections);
     }
 
-    // TODO add protocol.start to the method
+    // methods
     @Override
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
@@ -35,10 +42,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
                 String[] nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
                     protocol.process(nextMessage);
-                   /* if (response != null) {
-                        out.write(encdec.encode(response));
-                        out.flush();
-                    }*/
                 }
             }
 
@@ -50,6 +53,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
     @Override
     public void close() throws IOException {
+        connections.disconnect(handlerId);
         connected = false;
         sock.close();
     }
@@ -59,7 +63,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         try {
             out.write(encdec.encode(msg));
             out.flush();
-        } catch (IOException e) {//TODO: check if we need to close the connection
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

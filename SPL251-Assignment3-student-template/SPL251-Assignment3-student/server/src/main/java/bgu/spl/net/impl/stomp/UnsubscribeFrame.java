@@ -3,37 +3,37 @@ package bgu.spl.net.impl.stomp;
 public class UnsubscribeFrame implements StompFrame {
     
     // fields
-    private int frameId;
-    private String id;
+    private int subscriptionId;
+    private int handlerId;
+    private String receipt;
     private String[] message;
-
+    
     // constructor
-    public UnsubscribeFrame(String[] message){
+    public UnsubscribeFrame(String[] message, int handlerId){
+        this.subscriptionId = Integer.parseInt(message[2]);
+        this.handlerId = handlerId;
+        this.receipt = message[6];
         this.message = message;
-        if(message[1].equals("id")){
-            this.frameId = 0;
-            this.id = message[1];
-            this.message = message;
-        }
-        else{
-            // error
-
-        }
     }
     
     // methods
     public String[] handle(){
+        int userId = SingletonDataBase.getUserByHndlrId(handlerId);
+        if(!SingletonDataBase.unsubscribe(userId, subscriptionId)){
+            return errorHandle("subId was not found");
+        }
+        else{
+            String[] response = {"RECEIPT", "receipt-id", receipt, "\n", "\u0000"};
+            return response;
+        }
     }
 
-    public String[] getFrame(){
-        return this.message;
+    public String[] errorHandle(String message){
+        String[] errorFrame = {"ERROR", "message", ": subId was not found", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The subId is connected to any channel", "\u0000"};
+            return errorFrame;
     }
 
-    public void setFrameId(int id){
-        this.frameId = id;
-    }
-
-    public String[] errorHandle(){
-
+    public boolean shouldTerminate(){
+        return false;
     }
 }

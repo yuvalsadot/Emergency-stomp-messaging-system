@@ -7,50 +7,70 @@ public class StompMessagingProtocolClass implements StompMessagingProtocol<Strin
     // fields
     private boolean shouldTerminate = false;
     public StompFrame frame;
-    int connectionId;
-    int currFrameId;
+    int handlerId;
     Connections<String[]> connections;
     
     // methods
     @Override
-    public void start(int connectionId, Connections<String[]> connections){
-        this.connectionId = connectionId;
-        this.currFrameId = 0;
+    public void start(int handlerId, Connections<String[]> connections){
+        this.handlerId = handlerId;
         this.connections = connections;
     }
     
-    //TODO add connctionId variable to each frame
     @Override
     public void process(String[] message){
         String currStompCmd = message[0];
-        if (currStompCmd.equals("CONNECT")){
-            frame = new ConnectFrame(message, connectionId);
+        switch (currStompCmd) {
+            case "CONNECT":
+                frame = new ConnectFrame(message, handlerId);
+            case "SEND":
+                frame = new SendFrame(message, handlerId);
+            case "SUBSCRIBE":
+                frame = new SubscribeFrame(message, handlerId);
+            case "UNSUBSCRIBE":
+                frame = new UnsubscribeFrame(message, handlerId);
+            case "DISCONNECT":
+                frame = new DisconnectFrame(message, handlerId);
+                shouldTerminate = true;        
+            default:
+                break;
         }
-        else if (currStompCmd.equals("SEND")){
-            frame = new SendFrame(message);
-        }
-        else if (currStompCmd.equals("SUBSCRIBE")){
-            frame = new SubscribeFrame(message);
-        }
-        else if (currStompCmd.equals("UNSUBSCRIBE")){
-            frame = new UnsubscribeFrame(message);
-        }
-        else if (currStompCmd.equals("DISCONNECT")){
-            frame = new DisconnectFrame(message);
-        }
-        else{
-            // error
-        }
-
-        frame.setFrameId(currFrameId);
-        currFrameId++;
+        
         String[] response = frame.handle();
-        connections.send(connectionId, response);
+        sendFrame(response);
+        
+        if (message[0].equals("CONNECT") || message[0].equals("SEND")){
+            int counter = 1;
+            while (message[counter] != "receipt-id"){
+                counter++;
+            }
+            String[] response2 = {"RECEIPT", "receipt-id", message[counter + 1], "\n", "\u0000"};
+            sendFrame(response2);
+        }
     }
 
     @Override
     public boolean shouldTerminate(){
         return shouldTerminate;
         
+    }
+
+    private void sendFrame(String[] response){
+        switch (response[0]) {
+            case "CONNECTED":
+                connections.send(handlerId, response);
+
+            case "MESSAGE":
+                connections.send(response[6], response);
+                
+            case "RECEIPT":
+                connections.send(handlerId, response);            
+        
+            case "ERROR":
+                connections.send(handlerId, response);    
+                shouldTerminate = true;
+            default:
+                break;
+        }
     }
 }

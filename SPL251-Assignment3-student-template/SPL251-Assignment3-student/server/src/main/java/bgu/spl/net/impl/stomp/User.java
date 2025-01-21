@@ -34,21 +34,38 @@ public class User {
         return this.passcode;
     }
 
+    public int getCurrHandlerId(){
+        return this.currHandlerId;
+    }
+
+    public ConcurrentHashMap<Integer, String> getChannels(){
+        return this.channels;
+    }
+
+    public int getChannelId(String channel){
+        for (Integer subscriptionId : channels.keySet()) {
+            if (channels.get(subscriptionId).equals(channel)) {
+                return subscriptionId;
+            }
+        }
+        return -1;
+    }
+
     public boolean isSubscribed(String channel){
         return channels.containsValue(channel);
     }
 
-    public boolean subscribe(String channel, int subId){
+    public boolean subscribe(String channel, int subscriptionId){
         if(!isSubscribed(channel)){
-            this.channels.put(subId, channel);
+            this.channels.put(subscriptionId, channel);
             return true;
         }
         return false;
     }
 
-    public boolean unsubscribe(String channel, int subId){
-        if(isSubscribed(channel)){
-            this.channels.remove(subId);
+    public boolean unsubscribe(int subscriptionId){
+        if(channels.containsKey(subscriptionId)){
+            this.channels.remove(subscriptionId);
             return true;
         }
         return false;
@@ -69,12 +86,12 @@ public class User {
     public void setUserId(int userId){
         this.userId = userId;
     }
-
-    public int getCurrHandlerId(){
-        return this.currHandlerId;
-    }
-
+    
     public void setCurrHandlerId(int handlerId){
         this.currHandlerId = handlerId;
+    }
+
+    public void clearChannels(){
+        this.channels.clear();
     }
 }

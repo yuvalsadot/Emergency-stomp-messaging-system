@@ -61,8 +61,8 @@ public class SingletonDataBase {
     }
 
     // adders
-    public static void addHandler(ConnectionHandler<String[]> handler) {
-        handlersMap.put(currUserId, handler);
+    public static void addHandler(int handlerId, ConnectionHandler<String[]> handler) {
+        handlersMap.put(handlerId, handler);
     }
 
     public static void addNewUser(User newUser) {
@@ -77,18 +77,21 @@ public class SingletonDataBase {
         existingUser.setCurrHandlerId(handlerId);
     }
 
-    public static int addUserToChannel(String channel, int userId, int subscriptionId) {
+    public static boolean addUserToChannel(String channel, int userId, int subscriptionId) {
         if (channelsMap.containsKey(channel)) {
             if (usersMap.get(userId).subscribe(channel, subscriptionId)){
                 channelsMap.get(channel).put(userId, usersMap.get(userId));
-                return 0;
+                return true;
             }
             else {
-                return 1;
+                return false;
             }
         }
         else {
-            return 2;
+            channelsMap.put(channel, new ConcurrentHashMap<>());
+            usersMap.get(userId).subscribe(channel, subscriptionId);
+            channelsMap.get(channel).put(userId, usersMap.get(userId));
+            return true;
         }
     }
     

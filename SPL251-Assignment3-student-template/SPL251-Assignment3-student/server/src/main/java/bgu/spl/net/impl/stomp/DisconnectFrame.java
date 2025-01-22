@@ -18,8 +18,8 @@ public class DisconnectFrame implements StompFrame {
     // methods
     public String[] handle(){
         if (SingletonDataBase.disconnectUser(handlerId)){
-            shouldTerminate = true;
-            String[] response = {"RECEIPT", "receipt-id", receipt, "\n", "\u0000"};
+            //shouldTerminate = true;
+            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
             return response;
         }
         else{
@@ -28,7 +28,7 @@ public class DisconnectFrame implements StompFrame {
     }
 
     public String[] errorHandle(String message){
-        String[] errorFrame = {"ERROR", "message", ": User is not connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You cannot disconnect if you are not connected", "\u0000"};
+        String[] errorFrame = {"ERROR", "\nmessage", ": User is not connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nYou cannot disconnect if you are not connected", "\u0000"};
             return errorFrame;
     }
 

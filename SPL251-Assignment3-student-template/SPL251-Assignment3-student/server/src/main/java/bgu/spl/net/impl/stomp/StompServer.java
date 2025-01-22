@@ -11,4 +11,4 @@ public class StompServer {
                 () -> new MsgEncDec() //message encoder decoder factory
         ).serve();
     }
-}
+}//login 127.0.0.1:7777 manor 9399

@@ -37,15 +37,15 @@ public class SendFrame implements StompFrame {
 
     public String[] errorHandle(String message){
         if (message.equals("destination channel does not exist")){
-            String[] errorFrame = {"ERROR", "message", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The channel you approached doesn't exist", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe channel you approached doesn't exist", "\u0000"};
             return errorFrame;
         }
         else if (message.equals("user is not subscribed to the destination channel")){
-            String[] errorFrame = {"ERROR", "message", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You are already logged in, no need to connect again", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nYou are already logged in, no need to connect again", "\u0000"};
             return errorFrame;
         }
         else{
-            String[] errorFrame = {"ERROR", "message", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The server could not connect you right now, please try again later", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not connect you right now, please try again later", "\u0000"};
             return errorFrame;
         }
     }

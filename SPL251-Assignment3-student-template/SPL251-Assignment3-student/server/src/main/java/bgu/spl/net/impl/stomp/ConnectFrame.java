@@ -42,7 +42,7 @@ public class ConnectFrame implements StompFrame{
             }
         }
         if (connected){
-            String[] connectedFrame = {"CONNECTED", "\nversion:", this.acceptVersion, "\n", "\u0000"};
+            String[] connectedFrame = {"CONNECTED", "\nversion", ":" + this.acceptVersion, "\n", "\u0000"};
             return connectedFrame;
         }
         else {
@@ -52,15 +52,15 @@ public class ConnectFrame implements StompFrame{
     
     public String[] errorHandle(String message){
         if (message.equals("Wrong passcode")){
-            String[] errorFrame = {"ERROR", "message", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
             return errorFrame;
         }
         else if (message.equals("User already connected")){
-            String[] errorFrame = {"ERROR", "message", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You are already logged in, no need to connect again", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You are already logged in, no need to connect again", "\u0000"};
             return errorFrame;
         }
         else{
-            String[] errorFrame = {"ERROR", "message", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The server could not connect you right now, please try again later", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not connect you right now, please try again later", "\u0000"};
             return errorFrame;
         }
     }

@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.impl.stomp.MsgEncDec;
+import bgu.spl.net.impl.stomp.SingletonDataBase;
 import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -40,6 +41,7 @@ public abstract class BaseServer<T> implements Server<T> {
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
+                System.err.println("Accepted connection from: " + clientSock.getRemoteSocketAddress());
 
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
@@ -47,6 +49,7 @@ public abstract class BaseServer<T> implements Server<T> {
                         protocolFactory.get(),
                         handlerId,
                         connections);
+                SingletonDataBase.addHandler(handlerId, handler);
                 handlerId++;
                 execute(handler);
             }

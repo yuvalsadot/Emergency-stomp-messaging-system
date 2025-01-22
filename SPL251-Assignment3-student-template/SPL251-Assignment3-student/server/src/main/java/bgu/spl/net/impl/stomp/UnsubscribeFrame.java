@@ -12,7 +12,7 @@ public class UnsubscribeFrame implements StompFrame {
     public UnsubscribeFrame(String[] message, int handlerId){
         this.subscriptionId = Integer.parseInt(message[2]);
         this.handlerId = handlerId;
-        this.receipt = message[6];
+        this.receipt = message[4];
         this.message = message;
     }
     
@@ -23,13 +23,13 @@ public class UnsubscribeFrame implements StompFrame {
             return errorHandle("subId was not found");
         }
         else{
-            String[] response = {"RECEIPT", "receipt-id", receipt, "\n", "\u0000"};
+            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
             return response;
         }
     }
 
     public String[] errorHandle(String message){
-        String[] errorFrame = {"ERROR", "message", ": subId was not found", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The subId is connected to any channel", "\u0000"};
+        String[] errorFrame = {"ERROR", "\nmessage", ": subId was not found", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe subId is connected to any channel", "\u0000"};
             return errorFrame;
     }
 

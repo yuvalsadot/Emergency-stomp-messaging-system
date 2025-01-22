@@ -20,30 +20,22 @@ public class SubscribeFrame implements StompFrame{
     // methods
     public String[] handle(){
         int userId = SingletonDataBase.getUserByHndlrId(this.handlerId);
-        switch (SingletonDataBase.addUserToChannel(destination, userId, subscriptionId)) {
-            case 0:
-                String[] response = {"RECEIPT", "receipt-id", receipt, "\n", "\u0000"};
-                return response;
-            case 1:
-                return errorHandle("User already subscribed to this channel");
-            case 2:
-                return errorHandle("Channel does not exist"); 
-            default:
-                return null;
+        if(SingletonDataBase.addUserToChannel(destination, userId, subscriptionId)) { 
+            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
+            return response;
+        }
+        else {
+            return errorHandle("User already subscribed to this channel");
         }
     }
 
     public String[] errorHandle(String message){
         if (message.equals("User already subscribed to this channel")){
-            String[] errorFrame = {"ERROR", "message", ": Already subsricbed", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The user is already subscribed to this channel, no need to resubscribe", "\u0000"};
-            return errorFrame;
-        }
-        else if (message.equals("Channel does not exist")){
-            String[] errorFrame = {"ERROR", "message", ": Channel does not exist", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You need to create this channel before you subscribe", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": Already subsricbed", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe user is already subscribed to this channel, no need to resubscribe", "\u0000"};
             return errorFrame;
         }
         else{
-            String[] errorFrame = {"ERROR", "message", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "The server could not subscribe you right now, please try again later", "\u0000"};
+            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not subscribe you right now, please try again later", "\u0000"};
             return errorFrame;
         }
     }

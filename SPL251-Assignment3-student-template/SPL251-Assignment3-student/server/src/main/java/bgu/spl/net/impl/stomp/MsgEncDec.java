@@ -7,16 +7,20 @@ import java.nio.charset.StandardCharsets;
 public class MsgEncDec implements MessageEncoderDecoder<String[]> {
     
     // fields
-    private byte[] bytes = new byte[1 << 10]; //start with 1k
+    private byte[] bytes = new byte[1 << 5];
     private int len = 0;
-    private String[] frmStr = new String[1 << 10]; //start with 1k
+    private String[] frmStr = new String[1 << 5];
     private int frmStrLen = 0;
 
     // methods
     @Override
     public String[] decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') {
-            return frmStr;
+            String[] retFrame = Arrays.copyOf(this.frmStr, frmStrLen);
+            // reset the current frame
+            frmStrLen = 0;
+            frmStr = new String[1 << 5];
+            return retFrame;
         }
         else if (nextByte == ':'){
             pushString(popString());
@@ -53,7 +57,7 @@ public class MsgEncDec implements MessageEncoderDecoder<String[]> {
 
     @Override
     public byte[] encode(String[] message) {
-        byte[] retEncoded = new byte[1 << 10]; //start with 1k
+        byte[] retEncoded = new byte[1 << 5];
         int retEncodedLen = 0;
         for (String str : message) {
             byte[] encoded = (str).getBytes();
@@ -64,6 +68,6 @@ public class MsgEncDec implements MessageEncoderDecoder<String[]> {
                 retEncoded[retEncodedLen++] = b;
             }
         }
-        return retEncoded;        
+        return Arrays.copyOf(retEncoded, retEncodedLen);
     }
 }

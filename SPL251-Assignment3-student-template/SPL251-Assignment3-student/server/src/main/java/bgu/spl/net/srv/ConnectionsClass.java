@@ -2,10 +2,11 @@ package bgu.spl.net.srv;
 
 import java.util.concurrent.ConcurrentHashMap;
 import bgu.spl.net.impl.stomp.SingletonDataBase;
+import bgu.spl.net.impl.stomp.StompFrameRaw;
 import bgu.spl.net.impl.stomp.User;
 
 
-public class ConnectionsClass implements Connections<String[]> {
+public class ConnectionsClass implements Connections<StompFrameRaw> {
 
     // fields
     private SingletonDataBase dataBase;
@@ -19,12 +20,12 @@ public class ConnectionsClass implements Connections<String[]> {
 
     // methods
     @Override
-    public boolean send(int handlerId, String[] msg) {
+    public boolean send(int handlerId, StompFrameRaw msg) {
         if (SingletonDataBase.isHandlerExists(handlerId)) {
-            if (msg[0].equals("MESSAGE")) {
-                int getUsrSubId = SingletonDataBase.getUsrSubId(msg[6], SingletonDataBase.getUserByHndlrId(handlerId));
-                msg[2] = ":" + Integer.toString(getUsrSubId);
-                msg[4] = ":" + messageIdCounter;
+            if (msg.getCommand().equals("MESSAGE")) {
+                int getUsrSubId = SingletonDataBase.getUsrSubId(msg.getHeaders().get("channel"), SingletonDataBase.getUserByHndlrId(handlerId));
+                msg.getHeaders().put("subscription", Integer.toString(getUsrSubId));
+                msg.getHeaders().put("message-id", Integer.toString(messageIdCounter));
                 messageIdCounter++;
             }
             SingletonDataBase.getHandler(handlerId).send(msg);
@@ -34,7 +35,7 @@ public class ConnectionsClass implements Connections<String[]> {
     }
 
     @Override
-    public void send(String channel, String[] msg) {
+    public void send(String channel, StompFrameRaw msg) {
         ConcurrentHashMap<Integer, User> currChannel = SingletonDataBase.getChannel(channel);
         for (User currUser : currChannel.values()) {
             send(currUser.getCurrHandlerId(), msg);

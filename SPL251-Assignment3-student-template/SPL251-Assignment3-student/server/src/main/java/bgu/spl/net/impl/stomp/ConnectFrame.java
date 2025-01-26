@@ -1,40 +1,44 @@
 package bgu.spl.net.impl.stomp;
 
-public class ConnectFrame implements StompFrame{
+import java.util.concurrent.ConcurrentHashMap;
+
+public class ConnectFrame implements StompFrameAction<StompFrameRaw>{
 
     // fields
     private String acceptVersion;
     private String host;
     private String login;
     private String passcode;
-    private int connectionId;
-    private String[] message;
+    private int handlerId;
+    private StompFrameRaw message;
+    boolean shouldTerminate = false;
 
     // constructor
-    public ConnectFrame(String[] message, int connectionId){
-        this.acceptVersion = message[2];
-        this.host = message[4];
-        this.login = message[6];
-        this.passcode = message[8];
-        this. connectionId = connectionId;
+    public ConnectFrame(StompFrameRaw message, int handlerId){
+        this.acceptVersion = message.getHeaders().get("accept-version");
+        this.host = message.getHeaders().get("host");
+        this.login = message.getHeaders().get("login");
+        this.passcode = message.getHeaders().get("passcode");
+        this. handlerId = handlerId;
         this.message = message;
     }
 
     // methods
-    public String[] handle(){
+    @Override
+    public StompFrameRaw handle(){
         boolean connected = false;
         int userId = SingletonDataBase.getUserByUsrnm(this.login);
         if(userId == -1){
-            User newUser = new User(this.login, this.passcode, this.connectionId);
+            User newUser = new User(this.login, this.passcode, this.handlerId);
             SingletonDataBase.addNewUser(newUser);
             connected = true;
         }
         else{
-            if(SingletonDataBase.usersMap.get(userId).getPasscode() != this.passcode){
+            if(!SingletonDataBase.usersMap.get(userId).getPasscode().equals(this.passcode)){
                 return errorHandle("Wrong passcode");
             }
             else if(!SingletonDataBase.usersMap.get(userId).isLoggedIn()){
-                SingletonDataBase.addExistingUser(SingletonDataBase.usersMap.get(userId), this.connectionId);
+                SingletonDataBase.addExistingUser(SingletonDataBase.usersMap.get(userId), this.handlerId);
                 connected = true;
             }
             else {
@@ -42,30 +46,50 @@ public class ConnectFrame implements StompFrame{
             }
         }
         if (connected){
-            String[] connectedFrame = {"CONNECTED", "\nversion", ":" + this.acceptVersion, "\n", "\u0000"};
-            return connectedFrame;
+            String command = "CONNECTED";
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            headers.put("version", this.acceptVersion);
+            String body = "";
+            return new StompFrameRaw(command, headers, body);
         }
         else {
             return errorHandle("General Error");
         }
     }
     
-    public String[] errorHandle(String message){
+    @Override
+    public StompFrameRaw errorHandle(String message){
+        SingletonDataBase.disconnectUser(handlerId);
+        shouldTerminate = true;
+        String command = "ERROR";
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         if (message.equals("Wrong passcode")){
-            String[] errorFrame = {"ERROR", "\nmessage", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "Try again with a different passcode", "\u0000"};
-            return errorFrame;
+            headers.put("message", "Wrong passcode");
+            body += "Try again with a different passcode";
         }
         else if (message.equals("User already connected")){
-            String[] errorFrame = {"ERROR", "\nmessage", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "You are already logged in, no need to connect again", "\u0000"};
-            return errorFrame;
+            headers.put("message", "User already connected");
+            body += "You are already logged in, no need to connect again";
         }
         else{
-            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not connect you right now, please try again later", "\u0000"};
-            return errorFrame;
+            headers.put("message", "General error");
+            body += "The server could not connect you right now, please try again later";
         }
+        return new StompFrameRaw(command, headers, body);
     }
 
+    @Override
     public boolean shouldTerminate(){
-        return false;
+        return shouldTerminate;
+    }
+
+    private String message2String(StompFrameRaw message){
+        String output = message.getCommand() + "\n";
+        for (String key : message.getHeaders().keySet()){
+            output += key + ":" + message.getHeaders().get(key) + "\n";
+        }
+        output += "\n" + message.getBody();
+        return output;
     }
 }

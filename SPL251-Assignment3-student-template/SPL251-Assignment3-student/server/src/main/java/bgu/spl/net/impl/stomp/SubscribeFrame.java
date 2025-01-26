@@ -1,46 +1,67 @@
 package bgu.spl.net.impl.stomp;
 
-public class SubscribeFrame implements StompFrame{
+import java.util.concurrent.ConcurrentHashMap;
+
+public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
     // fields
     private String destination;
     private int subscriptionId;
     private int handlerId;
-    private String receipt;
-    private String[] message;
+    private StompFrameRaw message;
+    boolean shouldTerminate = false;
 
     // constructor
-    public SubscribeFrame(String[] message, int handlerId){
-       this.destination = message[2];
-       this.subscriptionId = Integer.parseInt(message[4]);
-       this.receipt = message[6];
+    public SubscribeFrame(StompFrameRaw message, int handlerId){
+       this.destination = message.getHeaders().get("destination");
+       this.subscriptionId = Integer.parseInt(message.getHeaders().get("id"));
        this.handlerId = handlerId;
        this.message = message;
     }
 
     // methods
-    public String[] handle(){
+    @Override
+    public StompFrameRaw handle(){
         int userId = SingletonDataBase.getUserByHndlrId(this.handlerId);
         if(SingletonDataBase.addUserToChannel(destination, userId, subscriptionId)) { 
-            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
-            return response;
+            String command = "NO_RESPONSE";
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            String body = "";
+            return new StompFrameRaw(command, headers, body);
         }
         else {
             return errorHandle("User already subscribed to this channel");
         }
     }
 
-    public String[] errorHandle(String message){
+    @Override
+    public StompFrameRaw errorHandle(String message){
+        SingletonDataBase.disconnectUser(handlerId);
+        shouldTerminate = true;
+        String command = "ERROR";
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         if (message.equals("User already subscribed to this channel")){
-            String[] errorFrame = {"ERROR", "\nmessage", ": Already subsricbed", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe user is already subscribed to this channel, no need to resubscribe", "\u0000"};
-            return errorFrame;
+            headers.put("message", "Already subsricbed");
+            body += "The user is already subscribed to this channel, no need to resubscribe";
         }
         else{
-            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not subscribe you right now, please try again later", "\u0000"};
-            return errorFrame;
+            headers.put("message", "General error");
+            body += "The server could not subscribe you right now, please try again later";
         }
+        return new StompFrameRaw(command, headers, body);
     }
 
+    @Override
     public boolean shouldTerminate(){
-        return false;
+        return shouldTerminate;
+    }
+
+    private String message2String(StompFrameRaw message){
+        String output = message.getCommand() + "\n";
+        for (String key : message.getHeaders().keySet()){
+            output += key + ":" + message.getHeaders().get(key) + "\n";
+        }
+        output += "\n" + message.getBody();
+        return output;
     }
 }

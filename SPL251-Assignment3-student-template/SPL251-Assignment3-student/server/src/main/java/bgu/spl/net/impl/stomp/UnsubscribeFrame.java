@@ -1,39 +1,59 @@
 package bgu.spl.net.impl.stomp;
 
-public class UnsubscribeFrame implements StompFrame {
+import java.util.concurrent.ConcurrentHashMap;
+
+public class UnsubscribeFrame implements StompFrameAction<StompFrameRaw> {
     
     // fields
     private int subscriptionId;
     private int handlerId;
-    private String receipt;
-    private String[] message;
+    private StompFrameRaw message;
+    boolean shouldTerminate = false;
     
     // constructor
-    public UnsubscribeFrame(String[] message, int handlerId){
-        this.subscriptionId = Integer.parseInt(message[2]);
+    public UnsubscribeFrame(StompFrameRaw message, int handlerId){
+        this.subscriptionId = Integer.parseInt(message.getHeaders().get("id"));
         this.handlerId = handlerId;
-        this.receipt = message[4];
         this.message = message;
     }
     
     // methods
-    public String[] handle(){
+    @Override
+    public StompFrameRaw handle(){
         int userId = SingletonDataBase.getUserByHndlrId(handlerId);
         if(!SingletonDataBase.unsubscribe(userId, subscriptionId)){
             return errorHandle("subId was not found");
         }
         else{
-            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
-            return response;
+           String command = "NO_RESPONSE";
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            String body = "";
+            return new StompFrameRaw(command, headers, body);
         }
     }
 
-    public String[] errorHandle(String message){
-        String[] errorFrame = {"ERROR", "\nmessage", ": subId was not found", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe subId is connected to any channel", "\u0000"};
-            return errorFrame;
+    @Override
+    public StompFrameRaw errorHandle(String message){
+        SingletonDataBase.disconnectUser(handlerId);
+        shouldTerminate = true;
+        String command = "ERROR";
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        headers.put("message", "Subscription Id was not found");
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n" + "The subId is connected to any channel";
+        return new StompFrameRaw(command, headers, body);
     }
 
+    @Override
     public boolean shouldTerminate(){
-        return false;
+        return shouldTerminate;
+    }
+
+    private String message2String(StompFrameRaw message){
+        String output = message.getCommand() + "\n";
+        for (String key : message.getHeaders().keySet()){
+            output += key + ":" + message.getHeaders().get(key) + "\n";
+        }
+        output += "\n" + message.getBody();
+        return output;
     }
 }

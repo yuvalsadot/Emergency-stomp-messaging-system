@@ -1,13 +1,14 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.impl.stomp.MsgEncDec;
+import bgu.spl.net.impl.stomp.StompFrameRaw;
 import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<String[]> {
+public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<StompFrameRaw> {
 
     // fields
     private final StompMessagingProtocolClass protocol;
@@ -39,7 +40,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             out = new BufferedOutputStream(sock.getOutputStream());
 
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
-                String[] nextMessage = encdec.decodeNextByte((byte) read);
+                StompFrameRaw nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
                     protocol.process(nextMessage);
                 }
@@ -59,7 +60,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     }
 
     @Override
-    public void send(String[] msg) {
+    public void send(StompFrameRaw msg) {
         try {
             out.write(encdec.encode(msg));
             out.flush();

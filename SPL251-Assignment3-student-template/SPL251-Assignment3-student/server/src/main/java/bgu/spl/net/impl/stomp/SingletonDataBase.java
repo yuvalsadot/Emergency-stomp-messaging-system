@@ -13,7 +13,7 @@ public class SingletonDataBase {
     // fields
     static ConcurrentHashMap<Integer, User> usersMap;
     static ConcurrentHashMap<String, ConcurrentHashMap<Integer, User>> channelsMap;
-    static ConcurrentHashMap<Integer, ConnectionHandler<String[]>> handlersMap;
+    static ConcurrentHashMap<Integer, ConnectionHandler<StompFrameRaw>> handlersMap;
     private static int currUserId;
 
     // constructor
@@ -48,7 +48,7 @@ public class SingletonDataBase {
         return -1;
     }
 
-    public static ConnectionHandler<String[]> getHandler(int handlerId) {
+    public static ConnectionHandler<StompFrameRaw> getHandler(int handlerId) {
         return handlersMap.get(handlerId);
     }
 
@@ -61,7 +61,7 @@ public class SingletonDataBase {
     }
 
     // adders
-    public static void addHandler(int handlerId, ConnectionHandler<String[]> handler) {
+    public static void addHandler(int handlerId, ConnectionHandler<StompFrameRaw> handler) {
         handlersMap.put(handlerId, handler);
     }
 

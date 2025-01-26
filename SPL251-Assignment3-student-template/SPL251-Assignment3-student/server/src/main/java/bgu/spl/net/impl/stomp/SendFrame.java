@@ -1,25 +1,25 @@
 package bgu.spl.net.impl.stomp;
 
-import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class SendFrame implements StompFrame {
+public class SendFrame implements StompFrameAction<StompFrameRaw> {
 
     // fields
     private String destination;
     private int handlerId;
-    private String[] headerBody;
-    private String[] message;
+    private StompFrameRaw message;
+    boolean shouldTerminate = false;
 
     // constructor
-    public SendFrame(String[] message, int handlerId){
-        this.destination = message[2];
+    public SendFrame(StompFrameRaw message, int handlerId){
+        this.destination = message.getHeaders().get("destination");
         this.handlerId = handlerId;
         this.message = message;
-        this.headerBody = Arrays.copyOfRange(message, 1, message.length);
     }
     
     // methods
-    public String[] handle(){
+    @Override
+    public StompFrameRaw handle(){
         if (!SingletonDataBase.isChannelExists(destination)) {
             return errorHandle("destination channel does not exist");
         }
@@ -27,31 +27,50 @@ public class SendFrame implements StompFrame {
             return errorHandle("user is not subscribed to the destination channel");
         }
         else {
-            String[] frameBeg = {"MESSAGE", "subscription", "", "message-id", ""}; // connectionClass will fill the missing fields
-            String[] frame2ret = new String[frameBeg.length + headerBody.length];
-            System.arraycopy(frameBeg, 0, frame2ret, 0, frameBeg.length);
-            System.arraycopy(headerBody, 0, frame2ret, frameBeg.length, headerBody.length);
-            return frame2ret;
+            String command = "MESSAGE";
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            headers.put("subscription", "");
+            headers.put("message-id", ""); // connectionClass will fill the missing fields
+            headers.put("destination", destination);
+            String body = message.getBody();
+            return new StompFrameRaw(command, headers, body);
         }
     }
 
-    public String[] errorHandle(String message){
+    @Override
+    public StompFrameRaw errorHandle(String message){
+        SingletonDataBase.disconnectUser(handlerId);
+        shouldTerminate = true;
+        String command = "ERROR";
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
         if (message.equals("destination channel does not exist")){
-            String[] errorFrame = {"ERROR", "\nmessage", ": Wrong passcode", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe channel you approached doesn't exist", "\u0000"};
-            return errorFrame;
+            headers.put("message", "Wrong channel");
+            body += "The channel you approached doesn't exist";
         }
         else if (message.equals("user is not subscribed to the destination channel")){
-            String[] errorFrame = {"ERROR", "\nmessage", ": User already connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nYou are already logged in, no need to connect again", "\u0000"};
-            return errorFrame;
+            headers.put("message", "User isn't subscribed");
+            body += "You should subscribe to the channel before sending messages";
         }
         else{
-            String[] errorFrame = {"ERROR", "\nmessage", ": General error", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nThe server could not connect you right now, please try again later", "\u0000"};
-            return errorFrame;
+            headers.put("message", "General error");
+            body += "The server could not connect you right now, please try again later";
         }
+        return new StompFrameRaw(command, headers, body);
     }
 
+    @Override
     public boolean shouldTerminate(){
-        return false;
+        return shouldTerminate;
+    }
+
+    private String message2String(StompFrameRaw message){
+        String output = message.getCommand() + "\n";
+        for (String key : message.getHeaders().keySet()){
+            output += key + ":" + message.getHeaders().get(key) + "\n";
+        }
+        output += "\n" + message.getBody();
+        return output;
     }
 }
 

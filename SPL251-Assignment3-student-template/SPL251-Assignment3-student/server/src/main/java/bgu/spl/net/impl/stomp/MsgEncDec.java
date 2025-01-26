@@ -1,34 +1,48 @@
 package bgu.spl.net.impl.stomp;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 import java.nio.charset.StandardCharsets;
 
-public class MsgEncDec implements MessageEncoderDecoder<String[]> {
+public class MsgEncDec implements MessageEncoderDecoder<StompFrameRaw> {
     
     // fields
     private byte[] bytes = new byte[1 << 5];
     private int len = 0;
-    private String[] frmStr = new String[1 << 5];
-    private int frmStrLen = 0;
+    private String command;
+    private ConcurrentHashMap<String, String> headers;
+    private String body;
+    private boolean isCommand = true;
+    private boolean isHeader = false;
 
     // methods
     @Override
-    public String[] decodeNextByte(byte nextByte) {
+    public StompFrameRaw decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') {
-            String[] retFrame = Arrays.copyOf(this.frmStr, frmStrLen);
-            // reset the current frame
-            frmStrLen = 0;
-            frmStr = new String[1 << 5];
-            return retFrame;
+            body = popString().substring(2); // discard the first two characters '\n'
+            StompFrameRaw message = new StompFrameRaw(command, headers, body);
+            // reset fields
+            command = "";
+            headers = null;
+            body = "";
+            isCommand = true;
+            isHeader = false;
+            return message;
         }
-        else if (nextByte == ':'){
-            pushString(popString());
+        else if (isCommand && nextByte == '\n') {
+            command = popString();
+            isCommand = false;
+            isHeader = true;
         }
-        else if (nextByte == '\n') {
-            pushString(popString());
+        else if (len == 1 && nextByte == '\n') { // empty line == end of headers
+            isHeader = false;
         }
-        // every cell except the first one starts with /n
+        else if (isHeader && nextByte == '\n') {
+            putHeader(popString().substring(1));
+        }
         pushByte(nextByte);
         return null; //not a frame yet
     }
@@ -47,21 +61,33 @@ public class MsgEncDec implements MessageEncoderDecoder<String[]> {
         return result;
     }
 
-    private void pushString(String nextString) {
-        if (frmStrLen >= frmStr.length) {
-            frmStr = Arrays.copyOf(frmStr, frmStrLen * 2);
+    private void putHeader(String nextString) {
+        if (headers == null) {
+            headers = new ConcurrentHashMap<>();
         }
-
-        frmStr[frmStrLen++] = nextString;
+        String[] header = nextString.split(":");
+        headers.put(header[0], header[1]);
     }
 
     @Override
-    public byte[] encode(String[] message) {
+    public byte[] encode(StompFrameRaw frame) {
         byte[] retEncoded = new byte[1 << 5];
         int retEncodedLen = 0;
-        for (String str : message) {
-            byte[] encoded = (str).getBytes();
-            for (byte b : encoded) {
+        ArrayList<byte[]> toEncode = new ArrayList<>();
+        // encode command
+        byte[] encoded = (frame.getCommand() + "\n").getBytes();
+        toEncode.add(encoded);
+        // encode headers
+        for (String key : frame.getHeaders().keySet()) {
+            encoded = (key + ":" + frame.getHeaders().get(key) + "\n").getBytes();
+            toEncode.add(encoded);
+        }
+        // encode body
+        encoded = ("\n" + frame.getBody() + "\u0000").getBytes();
+        toEncode.add(encoded);
+        // concatenate all encoded parts
+        for (byte[] arr : toEncode) {
+            for (byte b : arr) {
                 if (retEncodedLen >= retEncoded.length) {
                     retEncoded = Arrays.copyOf(retEncoded, retEncodedLen * 2);
                 }

@@ -1,38 +1,60 @@
 package bgu.spl.net.impl.stomp;
 
-public class DisconnectFrame implements StompFrame {
+import java.util.concurrent.ConcurrentHashMap;
+
+public class DisconnectFrame implements StompFrameAction<StompFrameRaw> {
     
     // fields
     private String receipt;
     private int handlerId;
-    private String[] message;
+    private StompFrameRaw message;
     boolean shouldTerminate = false;
 
     // constructor
-    public DisconnectFrame(String[] message, int handlerId){
-        this.receipt = message[2];
+    public DisconnectFrame(StompFrameRaw message, int handlerId){
+        this.receipt = message.getHeaders().get(receipt);
         this.handlerId = handlerId;
         this.message = message;
     }
     
     // methods
-    public String[] handle(){
+    @Override
+    public StompFrameRaw handle(){
         if (SingletonDataBase.disconnectUser(handlerId)){
-            //shouldTerminate = true;
-            String[] response = {"RECEIPT", "receipt-id", ":" + receipt, "\n", "\u0000"};
-            return response;
+            shouldTerminate = true;
+            String command = "RECEIPT";
+            ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+            headers.put("receipt-id", receipt);
+            String body = "";
+            return new StompFrameRaw(command, headers, body);
         }
         else{
             return errorHandle("User not connected");
         }     
     }
 
-    public String[] errorHandle(String message){
-        String[] errorFrame = {"ERROR", "\nmessage", ": User is not connected", "\n", "The message:", "\n-----", "\n" + this.message, "\n-----", "\nYou cannot disconnect if you are not connected", "\u0000"};
-            return errorFrame;
+    @Override
+    public StompFrameRaw errorHandle(String message){
+        SingletonDataBase.disconnectUser(handlerId);
+        shouldTerminate = true;
+        String command = "ERROR";
+        ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        headers.put("message", "User is not connected");
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n" + "You cannot disconnect if you are not connected";
+        return new StompFrameRaw(command, headers, body);
     }
 
+    @Override
     public boolean shouldTerminate(){
         return shouldTerminate;
+    }
+
+    private String message2String(StompFrameRaw message){
+        String output = message.getCommand() + "\n";
+        for (String key : message.getHeaders().keySet()){
+            output += key + ":" + message.getHeaders().get(key) + "\n";
+        }
+        output += "\n" + message.getBody();
+        return output;
     }
 }

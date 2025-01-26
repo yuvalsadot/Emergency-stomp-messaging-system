@@ -52,7 +52,7 @@ public class StompMessagingProtocolClass implements StompMessagingProtocol<Stomp
         }
 
         // send receipt
-        if (!response.getCommand().equals("EROR") && message.getHeaders().containsKey("receipt")) {
+        if (!response.getCommand().equals("ERROR") && !message.getCommand().equals("DISCONNECT") && message.getHeaders().containsKey("receipt")) {
             String command = "RECEIPT";
             ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
             headers.put("receipt-id", message.getHeaders().get("receipt"));

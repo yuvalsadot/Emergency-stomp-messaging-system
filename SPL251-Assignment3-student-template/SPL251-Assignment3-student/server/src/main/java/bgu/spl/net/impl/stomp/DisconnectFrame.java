@@ -12,7 +12,7 @@ public class DisconnectFrame implements StompFrameAction<StompFrameRaw> {
 
     // constructor
     public DisconnectFrame(StompFrameRaw message, int handlerId){
-        this.receipt = message.getHeaders().get(receipt);
+        this.receipt = message.getHeaders().get("receipt");
         this.handlerId = handlerId;
         this.message = message;
     }

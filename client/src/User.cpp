@@ -1,9 +1,12 @@
 #include "User.h"
+#include <mutex>
+#include <unordered_map>
 
-User::User()
-{
-}
+User::User(): userName(), loggedIn(false), channelToSubId(),
+ receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0)
+    , waitingForReceipt() {}
 
+// Destructor
 User::~User()
 {
 }
@@ -25,7 +28,7 @@ string User::getCommandByReceipt(int recId)
 
 string User::getName()
 {
-    return string();
+    return userName;
 }
 
 int User::getSubIdByTopic(string &channel)
@@ -43,11 +46,12 @@ void User::exitChannel(string &channel, int subId)
 
 void User::setName(string &name)
 {
+    userName = name;
 }
 
 bool User::isLoggedIn()
 {
-    return false;
+    return loggedIn;
 }
 
 void User::commandAck(int recId)
@@ -56,6 +60,13 @@ void User::commandAck(int recId)
 
 void User::resetUser()
 {
+    subIdCounter = 0;
+    receiptIdCounter = 0;
+    loggedIn = false;
+    receiptIdToCommand.clear();
+    channelToSubId.clear();
+    waitingForReceipt.clear();
+
 }
 
 void User::receiptCommand(int id, string cmd)

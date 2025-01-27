@@ -12,12 +12,14 @@ using std::unordered_map;
 class User{
 private:
     string userName;
+    
+    bool loggedIn;
     unordered_map<string, int> channelToSubId;
     unordered_map<int, string> receiptIdToCommand;
     unordered_map<int, string> waitingForReceipt;
     int subIdCounter;
     int receiptIdCounter;
-    bool isLoggedIn;
+    
 
 public:
     User();

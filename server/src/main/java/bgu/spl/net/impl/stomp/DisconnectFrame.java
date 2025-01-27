@@ -20,6 +20,9 @@ public class DisconnectFrame implements StompFrameAction<StompFrameRaw> {
     // methods
     @Override
     public StompFrameRaw handle(){
+        if (checkHeadres()){
+            return errorHandle("Missing headers");
+        }
         if (SingletonDataBase.disconnectUser(handlerId)){
             shouldTerminate = true;
             String command = "RECEIPT";
@@ -33,14 +36,28 @@ public class DisconnectFrame implements StompFrameAction<StompFrameRaw> {
         }     
     }
 
+    private boolean checkHeadres(){
+        return receipt == null;
+    }
+
     @Override
     public StompFrameRaw errorHandle(String message){
         SingletonDataBase.disconnectUser(handlerId);
         shouldTerminate = true;
         String command = "ERROR";
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
-        headers.put("message", "User is not connected");
-        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n" + "You cannot disconnect if you are not connected";
+        if (this.message.getHeaders().get("receipt") != null){
+            headers.put("receipt-id", this.message.getHeaders().get("receipt"));
+        }
+        if (message.equals("User is not connected")) {
+            headers.put("message", "User is not connected");
+            body += "You cannot disconnect if you are not connected";
+        }
+        else if (message.equals("Missing headers")){
+            headers.put("message", "Missing headers");
+            body += "You must include the receipt header";
+        }
         return new StompFrameRaw(command, headers, body);
     }
 

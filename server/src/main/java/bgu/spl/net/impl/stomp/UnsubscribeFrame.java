@@ -5,14 +5,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UnsubscribeFrame implements StompFrameAction<StompFrameRaw> {
     
     // fields
-    private int subscriptionId;
+    private String subscriptionId;
     private int handlerId;
     private StompFrameRaw message;
     boolean shouldTerminate = false;
     
     // constructor
     public UnsubscribeFrame(StompFrameRaw message, int handlerId){
-        this.subscriptionId = Integer.parseInt(message.getHeaders().get("id"));
+        this.subscriptionId = message.getHeaders().get("id");
         this.handlerId = handlerId;
         this.message = message;
     }
@@ -20,8 +20,11 @@ public class UnsubscribeFrame implements StompFrameAction<StompFrameRaw> {
     // methods
     @Override
     public StompFrameRaw handle(){
+        if (checkHeadres()){
+            return errorHandle("Missing headers");
+        }
         int userId = SingletonDataBase.getUserByHndlrId(handlerId);
-        if(!SingletonDataBase.unsubscribe(userId, subscriptionId)){
+        if(!SingletonDataBase.unsubscribe(userId, Integer.parseInt(subscriptionId))){
             return errorHandle("subId was not found");
         }
         else{
@@ -32,14 +35,28 @@ public class UnsubscribeFrame implements StompFrameAction<StompFrameRaw> {
         }
     }
 
+    private boolean checkHeadres(){
+        return subscriptionId == null;
+    }
+
     @Override
     public StompFrameRaw errorHandle(String message){
         SingletonDataBase.disconnectUser(handlerId);
         shouldTerminate = true;
         String command = "ERROR";
+        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
-        headers.put("message", "Subscription Id was not found");
-        String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n" + "The subId is connected to any channel";
+        if (this.message.getHeaders().get("receipt") != null){
+            headers.put("receipt-id", this.message.getHeaders().get("receipt"));
+        }
+        if (message.equals("subId was not found")) {
+            headers.put("message", "Subscription Id was not found");
+            body += "The subscription Id is connected to any channel";
+        }
+        else if (message.equals("Missing headers")){
+            headers.put("message", "Missing headers");
+            body += "You must include the id header";
+        }
         return new StompFrameRaw(command, headers, body);
     }
 

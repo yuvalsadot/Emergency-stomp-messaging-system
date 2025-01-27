@@ -11,4 +11,5 @@ public class StompServer {
                 () -> new MsgEncDec() //message encoder decoder factory
         ).serve();
     }
-}//login 127.0.0.1:7777 manor 9399
+}// login 127.0.0.1:7777 manor 9399
+// /workspaces/Assignment 3/client/data/events1.json

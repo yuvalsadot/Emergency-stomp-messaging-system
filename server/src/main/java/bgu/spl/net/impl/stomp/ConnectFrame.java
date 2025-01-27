@@ -26,6 +26,9 @@ public class ConnectFrame implements StompFrameAction<StompFrameRaw>{
     // methods
     @Override
     public StompFrameRaw handle(){
+        if (checkHeadres()){
+            return errorHandle("Missing headers");
+        }
         boolean connected = false;
         int userId = SingletonDataBase.getUserByUsrnm(this.login);
         if(userId == -1){
@@ -56,6 +59,10 @@ public class ConnectFrame implements StompFrameAction<StompFrameRaw>{
             return errorHandle("General Error");
         }
     }
+
+    private boolean checkHeadres(){
+        return this.acceptVersion == null || this.host == null || this.login == null || this.passcode == null;
+    }
     
     @Override
     public StompFrameRaw errorHandle(String message){
@@ -64,6 +71,9 @@ public class ConnectFrame implements StompFrameAction<StompFrameRaw>{
         String command = "ERROR";
         String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        if (this.message.getHeaders().get("receipt") != null){
+            headers.put("receipt-id", this.message.getHeaders().get("receipt"));
+        }
         if (message.equals("Wrong passcode")){
             headers.put("message", "Wrong passcode");
             body += "Try again with a different passcode";
@@ -72,9 +82,9 @@ public class ConnectFrame implements StompFrameAction<StompFrameRaw>{
             headers.put("message", "User already connected");
             body += "You are already logged in, no need to connect again";
         }
-        else{
-            headers.put("message", "General error");
-            body += "The server could not connect you right now, please try again later";
+        else if (message.equals("Missing headers")){
+            headers.put("message", "Missing headers");
+            body += "You are missing some headers, please check your message";
         }
         return new StompFrameRaw(command, headers, body);
     }

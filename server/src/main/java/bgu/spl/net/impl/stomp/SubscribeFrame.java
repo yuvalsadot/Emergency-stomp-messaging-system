@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
     // fields
     private String destination;
-    private int subscriptionId;
+    private String subscriptionId;
     private int handlerId;
     private StompFrameRaw message;
     boolean shouldTerminate = false;
@@ -13,7 +13,7 @@ public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
     // constructor
     public SubscribeFrame(StompFrameRaw message, int handlerId){
        this.destination = message.getHeaders().get("destination");
-       this.subscriptionId = Integer.parseInt(message.getHeaders().get("id"));
+       this.subscriptionId = message.getHeaders().get("id");
        this.handlerId = handlerId;
        this.message = message;
     }
@@ -21,8 +21,11 @@ public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
     // methods
     @Override
     public StompFrameRaw handle(){
+        if (checkHeadres()){
+            return errorHandle("Missing headers");
+        }
         int userId = SingletonDataBase.getUserByHndlrId(this.handlerId);
-        if(SingletonDataBase.addUserToChannel(destination, userId, subscriptionId)) { 
+        if(SingletonDataBase.addUserToChannel(destination, userId, Integer.parseInt(subscriptionId))) { 
             String command = "NO_RESPONSE";
             ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
             String body = "";
@@ -33,6 +36,10 @@ public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
         }
     }
 
+    private boolean checkHeadres(){
+        return destination == null || subscriptionId == null;
+    }
+
     @Override
     public StompFrameRaw errorHandle(String message){
         SingletonDataBase.disconnectUser(handlerId);
@@ -40,13 +47,16 @@ public class SubscribeFrame implements StompFrameAction<StompFrameRaw>{
         String command = "ERROR";
         String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        if (this.message.getHeaders().get("receipt") != null){
+            headers.put("receipt-id", this.message.getHeaders().get("receipt"));
+        }
         if (message.equals("User already subscribed to this channel")){
             headers.put("message", "Already subsricbed");
             body += "The user is already subscribed to this channel, no need to resubscribe";
         }
-        else{
-            headers.put("message", "General error");
-            body += "The server could not subscribe you right now, please try again later";
+        else if (message.equals("Missing headers")){
+            headers.put("message", "Missing headers");
+            body += "You must include the destination and id headers";
         }
         return new StompFrameRaw(command, headers, body);
     }

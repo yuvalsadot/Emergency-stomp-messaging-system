@@ -20,6 +20,9 @@ public class SendFrame implements StompFrameAction<StompFrameRaw> {
     // methods
     @Override
     public StompFrameRaw handle(){
+        if (checkHeadres()){
+            return errorHandle("Missing headers");
+        }
         if (!SingletonDataBase.isChannelExists(destination)) {
             return errorHandle("destination channel does not exist");
         }
@@ -37,6 +40,10 @@ public class SendFrame implements StompFrameAction<StompFrameRaw> {
         }
     }
 
+    private boolean checkHeadres(){
+        return destination == null;
+    }
+
     @Override
     public StompFrameRaw errorHandle(String message){
         SingletonDataBase.disconnectUser(handlerId);
@@ -44,6 +51,9 @@ public class SendFrame implements StompFrameAction<StompFrameRaw> {
         String command = "ERROR";
         String body = "The message:\n-----\n" + message2String(this.message) + "\n-----\n";
         ConcurrentHashMap<String, String> headers = new ConcurrentHashMap<>();
+        if (this.message.getHeaders().get("receipt") != null){
+            headers.put("receipt-id", this.message.getHeaders().get("receipt"));
+        }
         if (message.equals("destination channel does not exist")){
             headers.put("message", "Wrong channel");
             body += "The channel you approached doesn't exist";
@@ -52,9 +62,9 @@ public class SendFrame implements StompFrameAction<StompFrameRaw> {
             headers.put("message", "User isn't subscribed");
             body += "You should subscribe to the channel before sending messages";
         }
-        else{
-            headers.put("message", "General error");
-            body += "The server could not connect you right now, please try again later";
+        else if (message.equals("Missing headers")){
+            headers.put("message", "Missing headers");
+            body += "You must include the destination header";
         }
         return new StompFrameRaw(command, headers, body);
     }

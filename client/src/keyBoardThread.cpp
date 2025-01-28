@@ -1,6 +1,8 @@
-#include "keyBoardThread.h"
 #include <string>
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include "keyBoardThread.h"
 extern bool isLoggedIn;
 
 keyBoardThread::keyBoardThread(StompProtocol &protocol, ConnectionHandler &ch):protocol(protocol), ch(ch){}

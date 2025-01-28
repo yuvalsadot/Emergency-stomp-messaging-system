@@ -4,9 +4,8 @@
 #include <boost/asio.hpp>
 #include "ConnectionHandler.h"
 #include "Frame.h"
+#include "Channel.h"
 #include "User.h"
-#include "Game.h"
-#include "receivedFrames.h"
 // TODO: implement the STOMP protocol
 class StompProtocol
 {

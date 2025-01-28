@@ -29,7 +29,7 @@ public:
     int getSubId();
     string getCommandByReceipt(int recId);
     string getName();
-    int getSubIdByTopic(string &channel);
+    int getSubIdByChannel(string &channel);
 
     void joinChannel(string &channel, int subId);
     void exitChannel(string &channel, int subId);

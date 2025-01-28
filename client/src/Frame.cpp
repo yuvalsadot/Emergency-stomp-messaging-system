@@ -1,5 +1,6 @@
 #include "Frame.h"
 #include <iostream>
+extern bool isLoggedIn;
 
 Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 {

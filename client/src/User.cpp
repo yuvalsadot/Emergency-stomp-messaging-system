@@ -1,6 +1,7 @@
 #include "User.h"
 #include <mutex>
 #include <unordered_map>
+extern bool isLoggedIn;
 
 User::User(): userName(), loggedIn(false), channelToSubId(),
  receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0)

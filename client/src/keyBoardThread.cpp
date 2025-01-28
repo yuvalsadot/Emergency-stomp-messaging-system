@@ -30,7 +30,7 @@ void keyBoardThread::run(){
                 isLoggedIn=true;
             }
         }
-        protocol.proccessKeyBoard(line);//will also cover if we alredy were logged in
+        protocol.proccessKeyboardInput(line);//will also cover if we alredy were logged in
     }
 
 }

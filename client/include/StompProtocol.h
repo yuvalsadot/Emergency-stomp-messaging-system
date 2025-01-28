@@ -6,6 +6,7 @@
 #include "Frame.h"
 #include "Channel.h"
 #include "User.h"
+bool isLoggedIn = false;
 // TODO: implement the STOMP protocol
 class StompProtocol
 {

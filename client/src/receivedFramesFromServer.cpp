@@ -1,4 +1,5 @@
 #include "receivedFramesFromServer.h"
+extern bool isLoggedIn;
 
 ReceivedFramesFromServer::ReceivedFramesFromServer(string &input): input(input), type(""), frame(""){
     string start="";

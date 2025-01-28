@@ -72,8 +72,16 @@ bool User::isLoggedIn()
     return loggedIn;
 }
 
-void User::commandAck(int recId) // TODO
+void User::commandAcknowledged(int recId) // TODO
 {
+    string cmd;
+    std::unordered_map<int, string>::iterator it = waitingForReceipt.find(recId);
+    if(it != waitingForReceipt.end()){
+        cmd = it->second;
+        std::pair<int, string> newReceipt(recId, cmd);
+        receiptIdToCommand.insert(newReceipt);
+        waitingForReceipt.erase(recId);
+    }    
 }
 
 void User::resetUser()

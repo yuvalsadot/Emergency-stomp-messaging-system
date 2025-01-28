@@ -31,7 +31,7 @@ Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 
 
 
-string Frame::getFrameCommand()
+string Frame::getFrameType()
 {
     return frameType;
 }

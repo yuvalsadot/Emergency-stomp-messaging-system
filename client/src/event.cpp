@@ -63,6 +63,19 @@ const std::string &Event::get_description() const
     return this->description;
 }
 
+void split_str(string line, char delim, vector<string> &output)
+{
+    size_t start = 0;
+    size_t end = line.find(delim);
+    while (end != string::npos)
+    {
+        output.push_back(line.substr(start, end - start));
+        start = end + 1;
+        end = line.find(delim, start);
+    }
+    output.push_back(line.substr(start));
+}
+
 Event::Event(const std::string &frame_body): channel_name(""), city(""), 
                                              name(""), date_time(0), description(""), general_information(),
                                              eventOwnerUser("")

@@ -37,7 +37,7 @@ public:
     
     void setName(string& name);
     bool isLoggedIn();
-    void commandAck(int recId);
+    void commandAcknowledged(int recId);
     void resetUser();
     void receiptCommand(int id, string cmd);
     bool isSubscribed(string channel);

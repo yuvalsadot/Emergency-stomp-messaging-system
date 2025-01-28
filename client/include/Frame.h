@@ -21,7 +21,7 @@ class Frame
     Frame(string &input);
     ~Frame();
     // gettters
-    string getFrameCommand();
+    string getFrameType();
     string& getCmd();
     // 5 options for a frame
     string connectFrame();

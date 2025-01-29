@@ -23,6 +23,9 @@ public class MsgEncDec implements MessageEncoderDecoder<StompFrameRaw> {
     public StompFrameRaw decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') {
             body = popString().substring(2); // discard the first two characters '\n'
+            if (headers.get("destination") != null && headers.get("destination").charAt(0) == '/'){ // delete the char '/' in the begining of the destination topic
+                headers.put("destination", headers.get("destination").substring(1));
+            }
             StompFrameRaw message = new StompFrameRaw(command, headers, body);
             // reset fields
             command = "";
@@ -78,8 +81,12 @@ public class MsgEncDec implements MessageEncoderDecoder<StompFrameRaw> {
         byte[] encoded = (frame.getCommand() + "\n").getBytes();
         toEncode.add(encoded);
         // encode headers
-        for (String key : frame.getHeaders().keySet()) {
-            encoded = (key + ":" + frame.getHeaders().get(key) + "\n").getBytes();
+        ConcurrentHashMap<String,String> currHeadres = frame.getHeaders();
+        if (currHeadres.get("destinaion") != null){ // add the char '/' in the begining of the destination topic
+        currHeadres.put("destination", '/' + currHeadres.get("destinaion"));
+        }
+        for (String key : currHeadres.keySet()) {
+            encoded = (key + ":" + currHeadres.get(key) + "\n").getBytes();
             toEncode.add(encoded);
         }
         // encode body

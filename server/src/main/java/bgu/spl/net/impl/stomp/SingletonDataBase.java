@@ -97,15 +97,19 @@ public class SingletonDataBase {
     
     // removers
     public static boolean disconnectUser(int handlerId) {
-        User currUser = usersMap.get(getUserByHndlrId(handlerId));
-        if(currUser.isLoggedIn()){
-            currUser.logout();
-            currUser.setCurrHandlerId(-1);
-            for(String currChannel : currUser.getChannels().values()){
-                SingletonDataBase.removeUserFromChannel(currChannel, currUser.getUserId());
+        int id = getUserByHndlrId(handlerId);
+        if (id != -1) {
+            User currUser = usersMap.get(getUserByHndlrId(handlerId));
+            if(currUser.isLoggedIn()){
+                currUser.logout();
+                currUser.setCurrHandlerId(-1);
+                for(String currChannel : currUser.getChannels().values()){
+                    SingletonDataBase.removeUserFromChannel(currChannel, currUser.getUserId());
+                }
+                currUser.clearChannels();
+                return true;
             }
-            currUser.clearChannels();
-            return true;
+            return false;
         }
         return false;
     }

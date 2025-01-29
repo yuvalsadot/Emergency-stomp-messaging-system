@@ -1,9 +1,5 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
-import bgu.spl.net.impl.stomp.StompFrameRaw;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedSelectorException;
@@ -13,30 +9,35 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+import bgu.spl.net.impl.stomp.MsgEncDec;
+import bgu.spl.net.impl.stomp.SingletonDataBase;
+import bgu.spl.net.impl.stomp.StompFrameRaw;
+import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
 
-public class Reactor<T> implements Server<T> {
+public class Reactor implements Server<StompFrameRaw> {
 
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<T>> readerFactory;
+    private final Supplier<StompMessagingProtocolClass> protocolFactory;
+    private final Supplier<MsgEncDec> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-    private Connections<StompFrameRaw> connections;
-
+    private ConnectionsClass connections;
+    private int handlerId;
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 
     public Reactor(
             int numThreads,
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> readerFactory) {
+            Supplier<StompMessagingProtocolClass> protocolFactory,
+            Supplier<MsgEncDec> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
         this.connections = new ConnectionsClass();
+        this.handlerId = 0;
     }
 
     @Override
@@ -99,17 +100,21 @@ public class Reactor<T> implements Server<T> {
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
         SocketChannel clientChan = serverChan.accept();
         clientChan.configureBlocking(false);
-        final NonBlockingConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(
+        final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(
                 readerFactory.get(),
                 protocolFactory.get(),
                 clientChan,
-                this);
+                this,
+                handlerId,
+                connections);
+                SingletonDataBase.addHandler(handlerId, handler);
+                handlerId++;
         clientChan.register(selector, SelectionKey.OP_READ, handler);
     }
 
     private void handleReadWrite(SelectionKey key) {
-        @SuppressWarnings("unchecked")
-        NonBlockingConnectionHandler<T> handler = (NonBlockingConnectionHandler<T>) key.attachment();
+        //TODO @SuppressWarnings("unchecked")
+        NonBlockingConnectionHandler handler = (NonBlockingConnectionHandler) key.attachment();
 
         if (key.isReadable()) {
             Runnable task = handler.continueRead();
@@ -133,5 +138,4 @@ public class Reactor<T> implements Server<T> {
     public void close() throws IOException {
         selector.close();
     }
-
 }

@@ -1,7 +1,5 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.impl.stomp.MsgEncDec;
 import bgu.spl.net.impl.stomp.StompMessagingProtocolClass;
 
@@ -46,12 +44,12 @@ public interface Server<T> extends Closeable {
      * @param <T> The Message Object for the protocol
      * @return A new reactor server
      */
-    public static <T> Server<T> reactor(
+    public static Reactor reactor(
             int nthreads,
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> encoderDecoderFactory) {
-        return new Reactor<T>(nthreads, port, protocolFactory, encoderDecoderFactory);
+            Supplier<StompMessagingProtocolClass> protocolFactory,
+            Supplier<MsgEncDec> encoderDecoderFactory) {
+        return new Reactor(nthreads, port, protocolFactory, encoderDecoderFactory);
     }
 
 }

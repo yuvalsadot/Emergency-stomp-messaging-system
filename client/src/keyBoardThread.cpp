@@ -1,6 +1,8 @@
-#include "keyBoardThread.h"
 #include <string>
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include "keyBoardThread.h"
 extern bool isLoggedIn;
 
 keyBoardThread::keyBoardThread(StompProtocol &protocol, ConnectionHandler &ch):protocol(protocol), ch(ch){}
@@ -17,18 +19,17 @@ void keyBoardThread::run(){
                 std::string cmd = line.substr(i+1);
                 i = cmd.find(":");
                 std::string host = cmd.substr(0, i);
-                cmd = cmd.substr(i+1);
+                cmd = cmd.substr(i + 1);
                 i=cmd.find(" ");
-                int port = stoi(cmd.substr(0,i));
+                int port = stoi(cmd.substr(0, i));
                 ch.setValues(host, port);
                 if (!ch.connect()) {
                     std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
-                    //return 1;
                 }
                 isLoggedIn=true;
             }
         }
-        protocol.proccessKeyBoard(line);//will also cover if we alredy were logged in
+        protocol.proccessKeyboardInput(line);//will also cover if we alredy were logged in
     }
 
 }

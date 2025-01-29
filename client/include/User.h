@@ -12,12 +12,14 @@ using std::unordered_map;
 class User{
 private:
     string userName;
+    
+    bool loggedIn;
     unordered_map<string, int> channelToSubId;
     unordered_map<int, string> receiptIdToCommand;
     unordered_map<int, string> waitingForReceipt;
     int subIdCounter;
     int receiptIdCounter;
-    bool isLoggedIn;
+    
 
 public:
     User();
@@ -27,7 +29,7 @@ public:
     int getSubId();
     string getCommandByReceipt(int recId);
     string getName();
-    int getSubIdByTopic(string &channel);
+    int getSubIdByChannel(string &channel);
 
     void joinChannel(string &channel, int subId);
     void exitChannel(string &channel, int subId);
@@ -35,7 +37,7 @@ public:
     
     void setName(string& name);
     bool isLoggedIn();
-    void commandAck(int recId);
+    void commandAcknowledged(int recId);
     void resetUser();
     void receiptCommand(int id, string cmd);
     bool isSubscribed(string channel);

@@ -1,27 +1,26 @@
-CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
-LDFLAGS:=-lboost_system -lpthread
-# TODO change the makefile for StompEMIlient
-all: EchoClient
+CXX = g++
+CXXFLAGS = -std=c++17 -Iinclude -Wall -Wextra
+LDFLAGS = -lpthread
 
-EchoClient: bin/ConnectionHandler.o bin/echoClient.o
-	g++ -o bin/EchoClient bin/ConnectionHandler.o bin/echoClient.o $(LDFLAGS)
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
 
-StompWCIClient: bin/ConnectionHandler.o bin/StompClient.obin/event.o
-	g++ -o bin/StompWCIClient bin/ConnectionHandler.o bin/StompClient.o $(LDFLAGS)
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+EXECUTABLE = $(BIN_DIR)/StompClient
 
-bin/ConnectionHandler.o: src/ConnectionHandler.cpp
-	g++ $(CFLAGS) -o bin/ConnectionHandler.o src/ConnectionHandler.cpp
+all: $(EXECUTABLE)
 
-bin/echoClient.o: src/echoClient.cpp
-	g++ $(CFLAGS) -o bin/echoClient.o src/echoClient.cpp
+$(EXECUTABLE): $(OBJECTS)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
 
-bin/event.o: src/event.cpp
-	g++ $(CFLAGS) -o bin/event.o src/event.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-bin/StompClient.o: src/StompClient.cpp
-	g++ $(CFLAGS) -o bin/StompClient.o src/StompClient.cpp
-
-.PHONY: clean
 clean:
-	rm -f bin/*
-	
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+.PHONY: all clean

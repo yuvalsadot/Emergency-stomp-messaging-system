@@ -1,4 +1,6 @@
 #include "../include/ConnectionHandler.h"
+#include "ConnectionHandler.h"
+extern bool isLoggedIn;
 
 using boost::asio::ip::tcp;
 
@@ -105,4 +107,10 @@ void ConnectionHandler::close() {
 	} catch (...) {
 		std::cout << "closing failed: connection already closed" << std::endl;
 	}
+}
+
+void ConnectionHandler::setValues(std::string host, short port)
+{
+	this->host_ = host;
+	this->port_ = port;
 }

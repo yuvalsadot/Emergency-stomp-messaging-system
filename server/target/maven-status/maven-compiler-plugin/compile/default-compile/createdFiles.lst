@@ -17,10 +17,11 @@ bgu/spl/net/srv/NonBlockingConnectionHandler.class
 bgu/spl/net/api/MessageEncoderDecoder.class
 bgu/spl/net/impl/stomp/User.class
 bgu/spl/net/srv/Connections.class
+bgu/spl/net/impl/stomp/StompFrameAction.class
 bgu/spl/net/impl/stomp/MsgEncDec.class
 bgu/spl/net/impl/stomp/UnsubscribeFrame.class
 bgu/spl/net/impl/stomp/SingletonDataBase.class
 bgu/spl/net/impl/stomp/SingletonDataBase$1.class
-bgu/spl/net/impl/stomp/StompFrame.class
+bgu/spl/net/impl/stomp/StompFrameRaw.class
 bgu/spl/net/srv/ActorThreadPool.class
 bgu/spl/net/srv/Reactor.class

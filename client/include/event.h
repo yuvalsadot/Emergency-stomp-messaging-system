@@ -27,6 +27,7 @@ public:
     Event(const std::string & frame_body);
     virtual ~Event();
     void setEventOwnerUser(std::string setEventOwnerUser);
+    void split_str(string line, char delim, vector<string> &output);
     const std::string &getEventOwnerUser() const;
     const std::string &get_channel_name() const;
     const std::string &get_city() const;

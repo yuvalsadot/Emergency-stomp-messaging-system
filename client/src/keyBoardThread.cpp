@@ -19,13 +19,12 @@ void keyBoardThread::run(){
                 std::string cmd = line.substr(i+1);
                 i = cmd.find(":");
                 std::string host = cmd.substr(0, i);
-                cmd = cmd.substr(i+1);
+                cmd = cmd.substr(i + 1);
                 i=cmd.find(" ");
-                int port = stoi(cmd.substr(0,i));
+                int port = stoi(cmd.substr(0, i));
                 ch.setValues(host, port);
                 if (!ch.connect()) {
                     std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
-                    //return 1;
                 }
                 isLoggedIn=true;
             }

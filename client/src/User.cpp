@@ -93,7 +93,6 @@ void User::resetUser()
     receiptIdToCommand.clear();
     channelToSubId.clear();
     waitingForReceipt.clear();
-
 }
 
 void User::receiptCommand(int id, string cmd)

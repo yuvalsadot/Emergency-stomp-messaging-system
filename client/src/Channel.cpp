@@ -10,7 +10,7 @@ void Channel::summary(string user, string fileName) {
 
 string Channel::getName()
 {
-    return string();
+    return name;
 }
 
 void Channel::addChannelEvent(string name, string update) {

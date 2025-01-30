@@ -37,28 +37,42 @@ void StompProtocol::proccessKeyboardInput(string &input)
         int subId = user.getSubId();
         int recId = user.getReceiptId();
         operation = frame.subscribeFrame(subId, recId);
+        Channel *channel = new Channel(frame.getCmd());
+        std::pair<string, Channel*> newPair(frame.getCmd(), channel);
+        channels.insert(newPair);
         user.receiptCommand(recId, "Joined channel " + frame.getCmd());
     }
     else if(messageType == "exit"){
         int id = user.getSubIdByChannel(frame.getCmd());
         int recId = user.getReceiptId();
         operation = frame.unsubscribeFrame(id, recId);
+        channels.erase(frame.getCmd());
         user.receiptCommand(recId, "Exited channel " + frame.getCmd());
     }
     else if(messageType == "logout"){
         int recId = user.getReceiptId();
         operation = frame.disconnectFrame(recId);
         user.receiptCommand(recId, "Logged out");
+        isConnected = false;
+        isLoggedIn = false;
+        for(std::unordered_map<string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++){
+            channels.erase(it);
+            delete it->second;
+        }
+        user.resetUser();
     }
     else if(messageType == "report"){
         string frameName = frame.getCmd();
         names_and_events newEvents = parseEventsFile(frameName);
         string channel = newEvents.channel_name;
-        vector<string> events;
         if(user.isSubscribed(channel)){
-            events = frame.reportFrame(frameName, user.getName());
-            for(string event : events){
+            vector<string> sendFrames = frame.reportFrame(frameName, user.getName());
+            vector<Event> events = newEvents.events;
+            for(string event : sendFrames){
                 ch.sendFrameAscii(event, '\0');
+            }
+            for(Event event : events){
+                channels[channel]->addChannelEvent(user.getName(), event.get_channel_name());
             }
         }
         else{
@@ -100,7 +114,7 @@ void StompProtocol::proccessKeyboardInput(string &input)
     }
 }
 
-void StompProtocol::processServer(string & input)
+void StompProtocol::processServer(string &input)
 {
     ReceivedFramesFromServer rFrame(input);
     string messageType = rFrame.getType();
@@ -164,16 +178,19 @@ void StompProtocol::processServer(string & input)
         string frame = rFrame.getFrame();
         string tmp = frame;
         string channelName = "";
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 5; i ++){
             int end = tmp.find("\n");
-            if(tmp[0] == 'd'){
-                channelName = tmp.substr(12, end - 12);
+            if(tmp.substr(0, 12) == "destination:/"){
+                channelName = tmp.substr(13, end - 13);
             }
             else{
                 tmp = tmp.substr(end + 1);
             }
         }
-        Channel *channel;
+
+        channels[channelName]->addChannelEvent(user.getName(), );
+        
+        /*Channel *channel;
         std::unordered_map<string, Channel*>::iterator it = channels.find(channelName);
         if(it != channels.end()){
             channel = it->second;
@@ -181,7 +198,7 @@ void StompProtocol::processServer(string & input)
         int end = tmp.find("\n");
         string name = tmp.substr(6, end - 6);
         tmp = tmp.substr(end + 1);
-        end = tmp.find("\n");
+        end = tmp.find("\n");*/
     }
         
 }
@@ -189,9 +206,4 @@ void StompProtocol::processServer(string & input)
 bool StompProtocol::isConnectedToServer()
 {
 return isConnected;
-}
-
-string StompProtocol::report(string frame)
-{
-return string();
 }

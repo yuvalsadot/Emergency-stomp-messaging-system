@@ -4,28 +4,14 @@ extern bool isLoggedIn;
 
 Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 {
-    string s = "";
-    int counter = 0;
-    bool flag = false;
-    for(int i = 0; i < input.length() && !flag; i++)
-    {
-        if(input[i] == ' ')
-        {
-            flag = true;
-        }
-     else if(input[i] != input.length() - 1)
-     {
-            s.append(&input[i], 1);
-     }
-     else if(i==(int)input.length()-1)
-     { //for commands with one word
-           s.append(&input[i], 1);
-           flag=true;
-     }
-       counter++;
+    int end = input.find(' ');
+    if(end != input.length() - 1){
+        frameType = input.substr(0, end);
+        command = input.substr(end + 1);
     }
-    frameType = s;
-    command = input.substr(counter); //the command without the first word
+    else{
+        frameType = input;
+    }
 }
 
 
@@ -106,7 +92,7 @@ vector<string> Frame::reportFrame(string file, string user)
     for(Event event : eventsVec)
     {
         string s = "SEND\n";
-        s += "destination:" + parsedEvents.channel_name + "\n";
+        s += "destination:" + parsedEvents.channel_name + "\n\n";
         s += "event name:" + event.get_channel_name() + "\n";
         s += "city:" + event.get_city() + "\n";
         s += "date time:" + std::to_string(event.get_date_time()) + "\n";

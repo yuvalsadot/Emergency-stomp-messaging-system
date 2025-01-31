@@ -51,7 +51,7 @@ public class UnsubscribeFrame implements StompFrameAction<StompFrameRaw> {
         }
         if (message.equals("subId was not found")) {
             headers.put("message", "Subscription Id was not found");
-            body += "The subscription Id is connected to any channel";
+            body += "The subscription Id isn't connected to any channel";
         }
         else if (message.equals("Missing headers")){
             headers.put("message", "Missing headers");

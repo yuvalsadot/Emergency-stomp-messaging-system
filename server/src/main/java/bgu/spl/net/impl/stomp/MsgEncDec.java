@@ -82,15 +82,15 @@ public class MsgEncDec implements MessageEncoderDecoder<StompFrameRaw> {
         toEncode.add(encoded);
         // encode headers
         ConcurrentHashMap<String,String> currHeadres = frame.getHeaders();
-        if (currHeadres.get("destinaion") != null){ // add the char '/' in the begining of the destination topic
-        currHeadres.put("destination", '/' + currHeadres.get("destinaion"));
+        if (currHeadres.get("destination") != null && currHeadres.get("destination").charAt(0) != '/'){ // add the char '/' in the begining of the destination topic, only once
+            currHeadres.put("destination", '/' + currHeadres.get("destination"));
         }
         for (String key : currHeadres.keySet()) {
             encoded = (key + ":" + currHeadres.get(key) + "\n").getBytes();
             toEncode.add(encoded);
         }
         // encode body
-        encoded = ("\n" + frame.getBody() + "\u0000").getBytes();
+        encoded = ("\n" + frame.getBody() + "\n\u0000").getBytes();
         toEncode.add(encoded);
         // concatenate all encoded parts
         for (byte[] arr : toEncode) {

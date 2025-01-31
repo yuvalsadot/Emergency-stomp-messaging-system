@@ -1,7 +1,7 @@
 package bgu.spl.net.impl.stomp;
 
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import bgu.spl.net.srv.ConnectionHandler;
 
 public class SingletonDataBase {
@@ -14,38 +14,40 @@ public class SingletonDataBase {
     static ConcurrentHashMap<Integer, User> usersMap;
     static ConcurrentHashMap<String, ConcurrentHashMap<Integer, User>> channelsMap;
     static ConcurrentHashMap<Integer, ConnectionHandler<StompFrameRaw>> handlersMap;
-    private static int currUserId;
+    private static AtomicInteger currUserId;
 
     // constructor
     private SingletonDataBase() {
         usersMap = new ConcurrentHashMap<>();
         channelsMap = new ConcurrentHashMap<>();
         handlersMap = new ConcurrentHashMap<>();
-        currUserId = 0;
+        currUserId = new AtomicInteger(0);
     }
 
     // methods
+    // getters
     public static SingletonDataBase getInstance() {
         return SingletonDataBaseHolder.instance;
     }
 
-    // getters
     public static int getUserByUsrnm(String userName) {
-        for (User currUser : usersMap.values()) {
+        final int[] userId = {-1}; // Use an array to modify inside lambda
+        usersMap.forEach((id, currUser) -> {
             if (currUser.getUserName().equals(userName)) {
-                return currUser.getUserId();
+                userId[0] = id;
             }
-        }
-        return -1;
+        });
+        return userId[0];
     }
 
     public static int getUserByHndlrId(int handlerId) {
-        for (User currUser : usersMap.values()) {
+        final int[] currHandlerId = {-1};
+        usersMap.forEach((id, currUser) -> {
             if (currUser.getCurrHandlerId() == handlerId) {
-                return currUser.getUserId();
+                currHandlerId[0] = id;
             }
-        }
-        return -1;
+        });
+        return currHandlerId[0];
     }
 
     public static ConnectionHandler<StompFrameRaw> getHandler(int handlerId) {
@@ -67,9 +69,9 @@ public class SingletonDataBase {
 
     public static void addNewUser(User newUser) {
         newUser.login();
-        newUser.setUserId(currUserId);
-        usersMap.put(currUserId, newUser);
-        currUserId++;
+        newUser.setUserId(currUserId.get());
+        usersMap.put(currUserId.get(), newUser);
+        currUserId.getAndIncrement();
     }
 
     public static void addExistingUser(User existingUser, int handlerId) {
@@ -77,39 +79,29 @@ public class SingletonDataBase {
         existingUser.setCurrHandlerId(handlerId);
     }
 
-    public static boolean addUserToChannel(String channel, int userId, int subscriptionId) {
-        if (channelsMap.containsKey(channel)) {
-            if (usersMap.get(userId).subscribe(channel, subscriptionId)){
-                channelsMap.get(channel).put(userId, usersMap.get(userId));
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        else {
-            channelsMap.put(channel, new ConcurrentHashMap<>());
-            usersMap.get(userId).subscribe(channel, subscriptionId);
+    public static synchronized boolean addUserToChannel(String channel, int userId, int subscriptionId) {
+        channelsMap.computeIfAbsent(channel, k -> new ConcurrentHashMap<>());
+        if (usersMap.get(userId).subscribe(channel, subscriptionId)){
             channelsMap.get(channel).put(userId, usersMap.get(userId));
             return true;
         }
+        return false;
     }
     
     // removers
-    public static boolean disconnectUser(int handlerId) {
+    public static synchronized boolean disconnectUser(int handlerId) {
         int id = getUserByHndlrId(handlerId);
         if (id != -1) {
             User currUser = usersMap.get(getUserByHndlrId(handlerId));
-            if(currUser.isLoggedIn()){
+            if (currUser.isLoggedIn()){
                 currUser.logout();
                 currUser.setCurrHandlerId(-1);
-                for(String currChannel : currUser.getChannels().values()){
-                    SingletonDataBase.removeUserFromChannel(currChannel, currUser.getUserId());
-                }
+                currUser.getChannels().values().forEach(currChannel -> {
+                    SingletonDataBase.removeUserFromChannel(currChannel, id);
+                });
                 currUser.clearChannels();
                 return true;
             }
-            return false;
         }
         return false;
     }
@@ -119,7 +111,9 @@ public class SingletonDataBase {
     }
 
     public static void removeUserFromChannel(String channel, int userId){   
-        channelsMap.get(channel).remove(userId);
+        if (channelsMap.containsKey(channel)){
+            channelsMap.get(channel).remove(userId);
+        }
     }
 
     public static boolean unsubscribe(int userId, int subscriptionId){

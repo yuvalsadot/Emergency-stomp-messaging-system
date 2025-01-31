@@ -8,7 +8,7 @@ import bgu.spl.net.srv.Connections;
 public class StompMessagingProtocolClass implements StompMessagingProtocol<StompFrameRaw>{
 
     // fields
-    private boolean shouldTerminate = false;
+    private volatile boolean shouldTerminate = false;
     public StompFrameAction<StompFrameRaw> frame;
     int handlerId;
     Connections<StompFrameRaw> connections;

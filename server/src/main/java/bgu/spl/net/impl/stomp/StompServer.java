@@ -5,47 +5,47 @@ import bgu.spl.net.srv.Server;
 public class StompServer {
 
     public static void main(String[] args) {
-    //     if (args.length != 2) {
-    //         System.out.println("Usage: StompServer <port> <server type>");
-    //         return;
-    //     }
+        if (args.length != 2) {
+            System.out.println("Usage: StompServer <port> <server type>");
+            return;
+        }
         
-    //     int port;
-    //     try {
-    //         port = Integer.parseInt(args[0]);
-    //     } catch (NumberFormatException e) {
-    //         System.out.println("invalid port number");
-    //         return;
-    //     }
+        int port;
+        try {
+            port = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            System.out.println("invalid port number");
+            return;
+        }
 
-    //     String serverType = args[1].toLowerCase();
+        String serverType = args[1].toLowerCase();
 
-    //     System.out.println("String serverType: " + serverType + " on port: " + port);
+        System.out.println("String serverType: " + serverType + " on port: " + port);
 
-    //     switch (serverType) {
-    //         case "tpc":
-    //             runTPC(port);
-    //             break;
-    //         case "reactor":
-    //             runReactor(port);
-    //             break;
-    //         default:
-    //             System.out.println("invalid server type, please choose 'tpc' or 'reactor'");
-    //     }
-    // }
+        switch (serverType) {
+            case "tpc":
+                runTPC(port);
+                break;
+            case "reactor":
+                runReactor(port);
+                break;
+            default:
+                System.out.println("invalid server type, please choose 'tpc' or 'reactor'");
+        }
+    }
 
-    // private static void runTPC(int port) {
-    //     Server.threadPerClient(
-    //             port, //port
-    //             () -> new StompMessagingProtocolClass(), //protocol factory
-    //             () -> new MsgEncDec() //message encoder decoder factory
-    //     ).serve();
-    // }
+    private static void runTPC(int port) {
+        Server.threadPerClient(
+                port, //port
+                () -> new StompMessagingProtocolClass(), //protocol factory
+                () -> new MsgEncDec() //message encoder decoder factory
+        ).serve();
+    }
 
-    // private static void runReactor(int port) {
+    private static void runReactor(int port) {
         Server.reactor(
                 Runtime.getRuntime().availableProcessors(),
-                7777, //port
+                port, //port
                 () -> new StompMessagingProtocolClass(), //protocol factory
                 () -> new MsgEncDec() //message encoder decoder factory
         ).serve();

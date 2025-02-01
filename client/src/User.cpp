@@ -1,11 +1,11 @@
 #include "User.h"
 #include <mutex>
 #include <unordered_map>
-extern bool isLoggedIn;
+
 
 // constructor
 User::User(): userName(), loggedIn(false), channelToSubId(),
- receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0), waitingForReceipt() {}
+ receiptIdToCommand(),waitingForReceipt(), subIdCounter(0), receiptIdCounter(0){}
 
 // getters
 int User::getReceiptId()
@@ -55,6 +55,7 @@ void User::joinChannel(string &channel, int subId)
 
 void User::exitChannel(string &channel, int subId)
 {
+    (void)subId;
     channelToSubId.erase(channel);
 }
 

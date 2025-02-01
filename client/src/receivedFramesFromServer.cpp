@@ -6,17 +6,17 @@ ReceivedFramesFromServer::ReceivedFramesFromServer(string &input): input(input),
     string start="";
     int counter = 0;
     bool flag = false;
-    for(int i = 0; i < input.length() && !flag; i++)
+    for(size_t i = 0; i < input.length() && !flag; i++)
     {
         if(input[i] == '\n')
         {
             flag = true;
         }
-        else if(i != (int)input.length() - 1)
+        else if(i != input.length() - 1)
         {
             start.append(&input[i], 1);
         }
-        else if(i == (int)input.length() - 1)
+        else if(i == input.length() - 1)
         { //for commands with one word
             start.append(&input[i], 1);
             flag = true;
@@ -56,4 +56,5 @@ string ReceivedFramesFromServer::getSendingUser()
     int start = frame.find("user: ") + 6;
     int end = frame.find('\n', start);
     userName = frame.substr(start, end - start);
+    return userName;
 }

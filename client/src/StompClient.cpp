@@ -6,11 +6,12 @@
 #include "Frame.h"
 #include "Channel.h"
 #include "keyBoardThread.h"
-bool isLogged = false;
 
 
 int main(int argc, char *argv[])
 {
+	(void)argc;
+    (void)argv;
 	User* user = new User();
 	ConnectionHandler ch("", 0);
 	StompProtocol sp(ch, *user);

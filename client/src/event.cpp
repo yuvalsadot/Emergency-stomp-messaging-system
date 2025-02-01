@@ -71,7 +71,7 @@ bool Event::isForcesArrivalAtScene() const {
 }
 
 
-void split_str(std::string line, char delim, std::vector<std::string> &output)
+void Event::split_str(std::string line, char delim, std::vector<std::string> &output)
 {
     size_t start = 0;
     size_t end = line.find(delim);

@@ -7,11 +7,6 @@ extern bool isLoggedIn;
 User::User(): userName(), loggedIn(false), channelToSubId(),
  receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0), waitingForReceipt() {}
 
-// destructor
-User::~User()
-{
-}
-
 // getters
 int User::getReceiptId()
 {
@@ -73,7 +68,7 @@ bool User::isLoggedIn()
     return loggedIn;
 }
 
-void User::commandAcknowledged(int recId) // TODO
+void User::commandAcknowledged(int recId)
 {
     string cmd;
     std::unordered_map<int, string>::iterator it = waitingForReceipt.find(recId);
@@ -96,7 +91,8 @@ void User::resetUser()
 }
 
 void User::receiptCommand(int id, string cmd)
-{   std::pair<int, string> newReceipt(id, cmd);
+{   
+    std::pair<int, string> newReceipt(id, cmd);
     waitingForReceipt.insert(newReceipt);
 }
 

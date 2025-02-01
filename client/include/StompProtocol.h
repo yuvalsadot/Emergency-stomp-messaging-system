@@ -7,7 +7,7 @@
 #include "Channel.h"
 #include "User.h"
 bool isLoggedIn = false;
-// TODO: implement the STOMP protocol
+
 class StompProtocol
 {
     private:
@@ -18,8 +18,7 @@ class StompProtocol
 
     public:
     StompProtocol(ConnectionHandler& ch, User& user);
+    ~StompProtocol();
     void proccessKeyboardInput(string &input);
     void processServer(string &input);
-    bool isConnectedToServer();
-    string report(string frame);
 };

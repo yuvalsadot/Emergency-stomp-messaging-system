@@ -63,8 +63,6 @@ void Channel::summary(string user, string fileName) {
     }
     file.close();
     std::cout << "Summary written to " << fileName << std::endl;
-
-
 }
 
 string Channel::getName()

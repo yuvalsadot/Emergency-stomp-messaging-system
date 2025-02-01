@@ -2,11 +2,13 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
-#include "ConnectionHandler.h"
 #include "Frame.h"
-#include "Channel.h"
+#include "ConnectionHandler.h"
 #include "User.h"
 extern bool isLoggedIn;
+extern bool isLogged;
+
+class Channel;
 
 class StompProtocol
 {

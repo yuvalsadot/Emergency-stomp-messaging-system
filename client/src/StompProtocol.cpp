@@ -10,7 +10,8 @@
 #include <vector>
 #include <fstream>
 #include "receivedFramesFromServer.h"
-extern bool isLoggedIn = false;
+bool isLoggedIn = false;  // Define once
+bool isLogged = false;
 
 
 // constructor

@@ -13,12 +13,13 @@ class Channel {
     
 private:
     std::string name;
-    std::unordered_map<string, vector<Event>> userUpdates;
+    std::unordered_map<string, Event> userUpdates;
 
 public:
     Channel(string name);
     virtual ~Channel();
     void summary(string user, string fileName);
     string getName();
-    void addChannelEvent(string name, string update);
+    void addChannelEvent(string name, Event *event);
+    string Channel::epochToDateTime(time_t epoch);
 };

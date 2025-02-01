@@ -62,6 +62,15 @@ const std::string &Event::get_description() const
 {
     return this->description;
 }
+bool Event::isActive() const {
+    auto it = general_information.find("active");
+    return it != general_information.end() && it->second == "true";
+}
+bool Event::isForcesArrivalAtScene() const {
+    auto it = general_information.find("forces_arrival_at_scene");
+    return it != general_information.end() && it->second == "true";
+}
+
 
 void split_str(string line, char delim, vector<string> &output)
 {

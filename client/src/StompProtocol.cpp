@@ -10,7 +10,7 @@
 #include <vector>
 #include <fstream>
 #include "receivedFramesFromServer.h"
-extern bool isLoggedIn;
+extern bool isLoggedIn = false;
 
 
 // constructor
@@ -121,9 +121,9 @@ void StompProtocol::proccessKeyboardInput(string &input)
         else{
             std::cout << "Channel does not exist" << std::endl;
         }
-        if(operation != ""){
+        /*if(operation != ""){
             ch.sendFrameAscii(operation, '\0');
-        }
+        }*/
     }
 }
 
@@ -199,13 +199,16 @@ void StompProtocol::processServer(string &input)
                 tmp = tmp.substr(end + 1);
             }
         }
-
-        /*//channels[channelName]->addChannelEvent(user.getName(), ); // add username
-    }     
+    }
 }
+
+
+     /*channels[channelName]->addChannelEvent(user.getName(), ); // add username
+        
+
         //channels[channelName]->addChannelEvent(user.getName(), );
         
-        /*Channel *channel;
+        Channel *channel;
         std::unordered_map<string, Channel*>::iterator it = channels.find(channelName);
         if(it != channels.end()){
             channel = it->second;
@@ -213,7 +216,7 @@ void StompProtocol::processServer(string &input)
         int end = tmp.find("\n");
         string name = tmp.substr(6, end - 6);
         tmp = tmp.substr(end + 1);
-        end = tmp.find("\n");*/
+        end = tmp.find("\n");
     }
 }
 
@@ -221,3 +224,5 @@ bool StompProtocol::isConnectedToServer()
 {
     return isConnected;
 }
+*/
+       

@@ -6,7 +6,7 @@
 #include "Frame.h"
 #include "Channel.h"
 #include "User.h"
-bool isLoggedIn = false;
+extern bool isLoggedIn;
 
 class StompProtocol
 {

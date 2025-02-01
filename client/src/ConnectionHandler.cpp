@@ -1,9 +1,7 @@
 #include "../include/ConnectionHandler.h"
 #include "ConnectionHandler.h"
-extern bool isLoggedIn;
 
 using boost::asio::ip::tcp;
-
 using std::cin;
 using std::cout;
 using std::cerr;

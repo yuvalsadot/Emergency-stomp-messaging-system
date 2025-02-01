@@ -2,6 +2,7 @@
 #include <iostream>
 extern bool isLoggedIn;
 
+// constructor
 Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 {
     int end = input.find(' ');
@@ -14,10 +15,7 @@ Frame::Frame(string &input) : input(input), command(), frameType(), channel()
     }
 }
 
-
-
-
-
+// methods
 string Frame::getFrameType()
 {
     return frameType;
@@ -46,7 +44,6 @@ string Frame::connectFrame()
     s += "accept-version:1.2\n";
     s += '\0';
     return s;
-
 }
 
 
@@ -108,7 +105,6 @@ vector<string> Frame::reportFrame(string file, string user)
         events.push_back(s);
     }
     return events;
-    
 }
 
 string Frame::findName()

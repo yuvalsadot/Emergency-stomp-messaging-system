@@ -10,17 +10,16 @@ bool isLoggedIn = false;
 // TODO: implement the STOMP protocol
 class StompProtocol
 {
-private:
-ConnectionHandler &ch;
-User &user;
-bool isConnected;
-unordered_map<string, Channel*> channels;
+    private:
+    ConnectionHandler &ch;
+    User &user;
+    bool isConnected;
+    unordered_map<string, Channel*> channels;
 
-public:
-StompProtocol(ConnectionHandler& ch, User& user);
-void proccessKeyboardInput(string &input);
-void processServer(string &input);
-bool isConnectedToServer();
-string report(string frame);
-
+    public:
+    StompProtocol(ConnectionHandler& ch, User& user);
+    void proccessKeyboardInput(string &input);
+    void processServer(string &input);
+    bool isConnectedToServer();
+    string report(string frame);
 };

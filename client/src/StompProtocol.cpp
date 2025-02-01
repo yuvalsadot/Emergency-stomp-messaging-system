@@ -13,11 +13,12 @@
 extern bool isLoggedIn;
 
 
-
+// constructor
 StompProtocol::StompProtocol(ConnectionHandler & ch, User & user) : ch(ch), user(user), 
 isConnected(true), channels(){}
 
 
+// methods
 void StompProtocol::proccessKeyboardInput(string &input)
 {
     Frame frame = Frame(input);
@@ -81,18 +82,21 @@ void StompProtocol::proccessKeyboardInput(string &input)
     }
     else if(messageType == "summary"){
         string cmd = frame.getCmd();
+        // get channel name
         string channel = "";
         while(cmd.substr(0, 1) != " "){
             channel += cmd.substr(0, 1);
             cmd = cmd.substr(1);
         }
         cmd = cmd.substr(1);
+        // get user name
         string name = "";
         while(cmd.substr(0, 1) != " "){
             name += cmd.substr(0, 1);
             cmd = cmd.substr(1);
         }
         cmd = cmd.substr(1);
+        // get file name
         string fileName = "";
         int i = 0;
         int len = cmd.length();
@@ -205,5 +209,5 @@ void StompProtocol::processServer(string &input)
 
 bool StompProtocol::isConnectedToServer()
 {
-return isConnected;
+    return isConnected;
 }

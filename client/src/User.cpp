@@ -3,11 +3,11 @@
 #include <unordered_map>
 extern bool isLoggedIn;
 
+// constructor
 User::User(): userName(), loggedIn(false), channelToSubId(),
- receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0)
-    , waitingForReceipt() {}
+ receiptIdToCommand(), subIdCounter(0), receiptIdCounter(0), waitingForReceipt() {}
 
-// Destructor
+// destructor
 User::~User()
 {
 }

@@ -5,8 +5,10 @@
 #include "keyBoardThread.h"
 extern bool isLoggedIn;
 
+// constructor
 keyBoardThread::keyBoardThread(StompProtocol &protocol, ConnectionHandler &ch):protocol(protocol), ch(ch){}
 
+// methods
 void keyBoardThread::run(){
     while(1){
         const short bufsize = 1024;

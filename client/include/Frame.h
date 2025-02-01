@@ -19,18 +19,14 @@ class Frame
 
     public:
     Frame(string &input);
-    ~Frame();
     // gettters
     string getFrameType();
     string& getCmd();
     // 5 options for a frame
     string connectFrame();
-    string sendFrame();
     string subscribeFrame(int subId, int recId);
     string unsubscribeFrame(int subId, int recId);
     string disconnectFrame(int recId);
     vector<string> reportFrame(string file, string user);
     string findName();
-
-    //string getUnsubTopic();
 };

@@ -11,7 +11,6 @@ class ReceivedFramesFromServer
 
     public:
         ReceivedFramesFromServer(string &input);
-        virtual ~ReceivedFramesFromServer();
         string getType();
         int receiptId();
         string getErrorMsg();

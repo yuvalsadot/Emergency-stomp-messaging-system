@@ -1,6 +1,7 @@
 #include "receivedFramesFromServer.h"
 extern bool isLoggedIn;
 
+// constructor
 ReceivedFramesFromServer::ReceivedFramesFromServer(string &input): input(input), type(""), frame(""){
     string start="";
     int counter = 0;
@@ -25,9 +26,6 @@ ReceivedFramesFromServer::ReceivedFramesFromServer(string &input): input(input),
     type = start;
     frame = input.substr(counter); //the command without the first word
 }
-
-ReceivedFramesFromServer::~ReceivedFramesFromServer()
-{}
 
 string ReceivedFramesFromServer::getType()
 {

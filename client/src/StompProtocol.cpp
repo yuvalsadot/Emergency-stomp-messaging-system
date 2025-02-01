@@ -17,6 +17,13 @@ extern bool isLoggedIn;
 StompProtocol::StompProtocol(ConnectionHandler & ch, User & user) : ch(ch), user(user), 
 isConnected(true), channels(){}
 
+// destructor
+StompProtocol::~StompProtocol(){
+    for(std::unordered_map<string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++){
+        channels.erase(it);
+        delete it->second;
+    }
+}
 
 // methods
 void StompProtocol::proccessKeyboardInput(string &input)
@@ -193,6 +200,11 @@ void StompProtocol::processServer(string &input)
             }
         }
 
+<<<<<<< HEAD
+        channels[channelName]->addChannelEvent(user.getName(), ); // add username
+    }     
+}
+=======
         //channels[channelName]->addChannelEvent(user.getName(), );
         
         /*Channel *channel;
@@ -212,3 +224,4 @@ bool StompProtocol::isConnectedToServer()
 {
     return isConnected;
 }
+>>>>>>> 50dd9feb789a443dbd235d4c9c07b19da6461464

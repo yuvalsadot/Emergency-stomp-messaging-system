@@ -23,7 +23,6 @@ class User
 
     public:
         User();
-        virtual~User();
         // getters
         int getReceiptId();
         int getSubId();

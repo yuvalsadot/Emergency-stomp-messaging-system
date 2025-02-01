@@ -6,11 +6,11 @@ extern bool isLoggedIn;
 Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 {
     int end = input.find(' ');
-    if(end != input.length() - 1){
+    if (end != input.length() - 1){
         frameType = input.substr(0, end);
         command = input.substr(end + 1);
     }
-    else{
+    else {
         frameType = input;
     }
 }
@@ -117,13 +117,4 @@ string Frame::findName()
         userPass = userPass.substr(1);
     }
     return name;
-}
-
-/*string Frame::sendFrame()
-{
-    return string();
-}*/
-Frame::~Frame()
-{
-
 }

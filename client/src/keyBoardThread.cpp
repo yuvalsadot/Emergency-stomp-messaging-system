@@ -35,7 +35,3 @@ void keyBoardThread::run(){
     }
 
 }
-
-
-keyBoardThread::~keyBoardThread() {
-}

@@ -1,4 +1,13 @@
 #include "Channel.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <list>
+#include <unordered_map>
+#include <algorithm>
+#include <string>
+
 extern bool isLoggedIn;
 
 Channel::Channel(string name) : name(name), userUpdates() {}

@@ -82,7 +82,7 @@ void StompProtocol::proccessKeyboardInput(string &input)
                 ch.sendFrameAscii(event, '\0');
             }
             for(Event event : events){
-                channels[channel]->addChannelEvent(user.getName(), event.get_channel_name());
+                channels[channel]->addChannelEvent(user.getName(), &event);
             }
         }
         else{
@@ -200,11 +200,9 @@ void StompProtocol::processServer(string &input)
             }
         }
 
-<<<<<<< HEAD
-        channels[channelName]->addChannelEvent(user.getName(), ); // add username
+        /*//channels[channelName]->addChannelEvent(user.getName(), ); // add username
     }     
 }
-=======
         //channels[channelName]->addChannelEvent(user.getName(), );
         
         /*Channel *channel;
@@ -217,11 +215,9 @@ void StompProtocol::processServer(string &input)
         tmp = tmp.substr(end + 1);
         end = tmp.find("\n");*/
     }
-        
 }
 
 bool StompProtocol::isConnectedToServer()
 {
     return isConnected;
 }
->>>>>>> 50dd9feb789a443dbd235d4c9c07b19da6461464

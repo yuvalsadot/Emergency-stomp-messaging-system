@@ -15,4 +15,5 @@ class ReceivedFramesFromServer
         int receiptId();
         string getErrorMsg();
         string getFrame();
+        string getSendingUser();
 };

@@ -43,11 +43,11 @@ void Channel::summary(string user, string fileName) {
         return a.second.get_name() < b.second.get_name();
     });
     file << "Channel: " << name << std::endl;
-    file << "Stats:" << std::endl;
+    file << "Stats: " << std::endl;
     file << "Total: " << totalReports << std::endl;
     file << "Active: " << activeReports << std::endl;
     file << "Forces arrival at scene: " << forcesAtScene << std::endl;
-    file << "Events:" << std::endl;
+    file << "Events: " << std::endl;
     int reportNum = 1;
     for(const auto& report : sortedReports) {
         const Event& event = report.second;
@@ -74,6 +74,7 @@ void Channel::addChannelEvent(string name, Event *event)
 {
     userUpdates[name].push_back(*event);
 }
+
 string Channel::epochToDateTime(time_t epoch) {
     struct tm *timeinfo;
     char buffer[20];  // "dd/mm/yy hh:mm"
@@ -81,5 +82,3 @@ string Channel::epochToDateTime(time_t epoch) {
     strftime(buffer, sizeof(buffer), "%d/%m/%y %H:%M", timeinfo);
     return string(buffer);
 }
-;
-

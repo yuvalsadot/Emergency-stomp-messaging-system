@@ -88,19 +88,20 @@ vector<string> Frame::reportFrame(string file, string user)
     for(Event event : eventsVec)
     {
         string s = "SEND\n";
-        s += "destination:" + parsedEvents.channel_name + "\n\n";
-        s += "event name:" + event.get_channel_name() + "\n";
-        s += "city:" + event.get_city() + "\n";
-        s += "date time:" + std::to_string(event.get_date_time()) + "\n";
+        s += "destination: " + parsedEvents.channel_name + "\n\n";
+        s += "user: " + user + "\n";
+        s += "city: " + event.get_city() + "\n";
+        s += "event name: " + event.get_channel_name() + "\n";
+        s += "date time: " + std::to_string(event.get_date_time()) + "\n";
         std::map<std::string, std::string> generalInformation = event.get_general_information();  
-        s += "general information:\n";
+        s += "general information: \n";
         for(auto it = generalInformation.begin(); it != generalInformation.end(); it++)
         {
-            s += it->first + ":" + it->second + "\n";
+            s += it->first + ": " + it->second + "\n";
         }
         s += '\0';
        
-        s += "description:" + event.get_description() + "\n";
+        s += "description:\n" + event.get_description() + "\n\0";
         events.push_back(s);
     }
     return events;

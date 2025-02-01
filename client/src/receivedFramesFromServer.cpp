@@ -48,3 +48,12 @@ string ReceivedFramesFromServer::getFrame()
 {
     return frame;
 }
+
+
+string ReceivedFramesFromServer::getSendingUser()
+{
+    string userName;
+    int start = frame.find("user: ") + 6;
+    int end = frame.find('\n', start);
+    userName = frame.substr(start, end - start);
+}

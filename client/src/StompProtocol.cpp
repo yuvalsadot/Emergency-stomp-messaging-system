@@ -188,6 +188,7 @@ void StompProtocol::processServer(string &input)
     }
     else if(messageType == "MESSAGE"){
         string frame = rFrame.getFrame();
+        // get channel name
         string tmp = frame;
         string channelName = "";
         for(int i = 0; i < 5; i ++){
@@ -199,30 +200,8 @@ void StompProtocol::processServer(string &input)
                 tmp = tmp.substr(end + 1);
             }
         }
-    }
+        // add event to channel by username
+        string sendingUser = rFrame.getSendingUser();
+        channels[channelName]->addChannelEvent(sendingUser, );
+    }     
 }
-
-
-     /*channels[channelName]->addChannelEvent(user.getName(), ); // add username
-        
-
-        //channels[channelName]->addChannelEvent(user.getName(), );
-        
-        Channel *channel;
-        std::unordered_map<string, Channel*>::iterator it = channels.find(channelName);
-        if(it != channels.end()){
-            channel = it->second;
-        }
-        int end = tmp.find("\n");
-        string name = tmp.substr(6, end - 6);
-        tmp = tmp.substr(end + 1);
-        end = tmp.find("\n");
-    }
-}
-
-bool StompProtocol::isConnectedToServer()
-{
-    return isConnected;
-}
-*/
-       

@@ -74,6 +74,7 @@ void Channel::addChannelEvent(string name, Event *event)
 {
     userUpdates[name] = *event;
 }
+
 string Channel::epochToDateTime(time_t epoch) {
     struct tm *timeinfo;
     char buffer[20];  // "dd/mm/yy hh:mm"
@@ -81,5 +82,3 @@ string Channel::epochToDateTime(time_t epoch) {
     strftime(buffer, sizeof(buffer), "%d/%m/%y %H:%M", timeinfo);
     return string(buffer);
 }
-;
-

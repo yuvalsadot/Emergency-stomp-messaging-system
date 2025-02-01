@@ -82,7 +82,7 @@ void StompProtocol::proccessKeyboardInput(string &input)
                 ch.sendFrameAscii(event, '\0');
             }
             for(Event event : events){
-                channels[channel]->addChannelEvent(user.getName(), &event);
+                channels[channel]->addChannelEvent(user.getName(), event);
             }
         }
         else{
@@ -202,6 +202,7 @@ void StompProtocol::processServer(string &input)
         }
         // add event to channel by username
         string sendingUser = rFrame.getSendingUser();
-        channels[channelName]->addChannelEvent(sendingUser, );
+        Event *event = new Event(frame);
+        channels[channelName]->addChannelEvent(sendingUser, *event);
     }     
 }

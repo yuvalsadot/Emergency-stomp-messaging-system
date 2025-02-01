@@ -70,9 +70,13 @@ string Channel::getName()
     return name;
 }
 
-void Channel::addChannelEvent(string name, Event *event)
+void Channel::addChannelEvent(string name, Event &event)
 {
-    userUpdates[name].push_back(*event);
+    if (userUpdates.find(name) == userUpdates.end()) {
+        std::pair<std::string, std::vector<Event>> user(name, std::vector<Event>());
+        userUpdates.insert(user);
+    }
+    userUpdates[name].push_back(event);
 }
 
 string Channel::epochToDateTime(time_t epoch) {

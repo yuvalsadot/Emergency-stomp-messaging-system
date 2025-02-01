@@ -22,6 +22,6 @@ public:
     virtual ~Channel();
     void summary(string user, string fileName);
     string getName();
-    void addChannelEvent(string name, Event *event);
+    void addChannelEvent(string name, Event &event);
     string epochToDateTime(time_t epoch);
 };

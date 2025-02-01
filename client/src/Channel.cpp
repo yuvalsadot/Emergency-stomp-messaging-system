@@ -43,11 +43,11 @@ void Channel::summary(string user, string fileName) {
         return a.second.get_name() < b.second.get_name();
     });
     file << "Channel: " << name << std::endl;
-    file << "Stats:" << std::endl;
+    file << "Stats: " << std::endl;
     file << "Total: " << totalReports << std::endl;
     file << "Active: " << activeReports << std::endl;
     file << "Forces arrival at scene: " << forcesAtScene << std::endl;
-    file << "Events:" << std::endl;
+    file << "Events: " << std::endl;
     int reportNum = 1;
     for(const auto& report : sortedReports) {
         const Event& event = report.second;

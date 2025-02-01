@@ -9,7 +9,6 @@
 #include <cstring>
 #include <algorithm>
 #include <string>
-//#include "../include/keyboardInput.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -72,7 +71,7 @@ bool Event::isForcesArrivalAtScene() const {
 }
 
 
-void split_str(string line, char delim, vector<string> &output)
+void split_str(std::string line, char delim, std::vector<std::string> &output)
 {
     size_t start = 0;
     size_t end = line.find(delim);

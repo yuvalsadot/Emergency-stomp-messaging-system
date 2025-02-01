@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Iinclude -Wall -Wextra
-LDFLAGS = -lpthread
+CXXFLAGS = -std=c++17 -Iinclude -Wall -Wextra -Weffc++ -g
+LDFLAGS = -lpthread -lboost_system
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -23,4 +23,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean
+run: $(EXECUTABLE)
+	./$(EXECUTABLE)
+
+.PHONY: all clean run

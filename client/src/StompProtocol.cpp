@@ -10,7 +10,7 @@
 #include <vector>
 #include <fstream>
 #include "receivedFramesFromServer.h"
-extern bool isLoggedIn;
+extern bool isLoggedIn = false;
 
 
 // constructor
@@ -121,9 +121,9 @@ void StompProtocol::proccessKeyboardInput(string &input)
         else{
             std::cout << "Channel does not exist" << std::endl;
         }
-        if(operation != ""){
+        /*if(operation != ""){
             ch.sendFrameAscii(operation, '\0');
-        }
+        }*/
     }
 }
 

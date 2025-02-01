@@ -8,12 +8,14 @@ using std::unordered_map;
 #include "event.h"
 #include <vector>
 using std::vector;
+#include "StompProtocol.h"
+
 
 class Channel {
     
 private:
     std::string name;
-    std::unordered_map<string, Event> userUpdates;
+    std::unordered_map<string, vector<Event>> userUpdates;
 
 public:
     Channel(string name);
@@ -21,5 +23,5 @@ public:
     void summary(string user, string fileName);
     string getName();
     void addChannelEvent(string name, Event *event);
-    string Channel::epochToDateTime(time_t epoch);
+    string epochToDateTime(time_t epoch);
 };

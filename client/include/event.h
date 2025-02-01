@@ -4,6 +4,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <string>
+
 
 class Event
 {
@@ -27,7 +29,7 @@ public:
     Event(const std::string & frame_body);
     virtual ~Event();
     void setEventOwnerUser(std::string setEventOwnerUser);
-    void split_str(string line, char delim, vector<string> &output);
+    void split_str(std::string line, char delim, std::vector<std::string> &output);
     const std::string &getEventOwnerUser() const;
     const std::string &get_channel_name() const;
     const std::string &get_city() const;
@@ -35,8 +37,8 @@ public:
     const std::string &get_name() const;
     int get_date_time() const;
     const std::map<std::string, std::string> &get_general_information() const;
-    bool Event::isActive() const;
-    bool Event::isForcesArrivalAtScene() const;
+    bool isActive() const;
+    bool isForcesArrivalAtScene() const;
 };
 
 // an object that holds the names of the teams and a vector of events, to be returned by the parseEventsFile function

@@ -1,4 +1,5 @@
 #include "Channel.h"
+#include "StompProtocol.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,7 +9,6 @@
 #include <algorithm>
 #include <string>
 
-extern bool isLoggedIn;
 
 Channel::Channel(string name) : name(name), userUpdates() {}
 Channel::~Channel() {
@@ -29,12 +29,13 @@ void Channel::summary(string user, string fileName) {
     int activeReports = 0;
     int forcesAtScene = 0;
     std::vector<std::pair<std::string, Event>> sortedReports;
-    for (auto &report : userUpdates) {
-        const Event& event = report.second;
-        totalReports++;
-        if(event.isActive()) activeReports++;
-        if(event.isForcesArrivalAtScene()) forcesAtScene++;
-        sortedReports.push_back(report);
+    if (userUpdates.find(user) != userUpdates.end()){
+        for (const Event& event : userUpdates[user]) {
+            totalReports++;
+            if(event.isActive()) activeReports++;
+            if(event.isForcesArrivalAtScene()) forcesAtScene++;
+            sortedReports.push_back({user, event});
+        }  
     }
     std::sort(sortedReports.begin(), sortedReports.end(), [](const std::pair<std::string, Event>& a, const std::pair<std::string, Event>& b) {
         if (a.second.get_date_time() != b.second.get_date_time())
@@ -59,9 +60,10 @@ void Channel::summary(string user, string fileName) {
             summary += "...";
         }
         file << "Summary: " << summary << std::endl;
-        std::cout << "Summary written to " << fileName << std::endl;
     }
     file.close();
+    std::cout << "Summary written to " << fileName << std::endl;
+
 
 }
 
@@ -72,7 +74,7 @@ string Channel::getName()
 
 void Channel::addChannelEvent(string name, Event *event)
 {
-    userUpdates[name] = *event;
+    userUpdates[name].push_back(*event);
 }
 
 string Channel::epochToDateTime(time_t epoch) {

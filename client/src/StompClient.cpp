@@ -7,7 +7,6 @@
 #include "Channel.h"
 #include "keyBoardThread.h"
 bool isLogged = false;
-extern bool isLoggedIn;
 
 
 int main(int argc, char *argv[])

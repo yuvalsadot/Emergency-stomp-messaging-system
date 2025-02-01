@@ -3,7 +3,6 @@
 #include <thread>
 #include <mutex>
 #include "keyBoardThread.h"
-extern bool isLoggedIn;
 
 // constructor
 keyBoardThread::keyBoardThread(StompProtocol &protocol, ConnectionHandler &ch):protocol(protocol), ch(ch){}

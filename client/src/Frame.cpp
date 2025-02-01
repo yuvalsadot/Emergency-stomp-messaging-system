@@ -1,12 +1,11 @@
 #include "Frame.h"
 #include <iostream>
-extern bool isLoggedIn;
 
 // constructor
 Frame::Frame(string &input) : input(input), command(), frameType(), channel()
 {
     int end = input.find(' ');
-    if (end != input.length() - 1){
+    if (end != static_cast<int>(input.length()) - 1){
         frameType = input.substr(0, end);
         command = input.substr(end + 1);
     }

@@ -40,6 +40,8 @@ void StompProtocol::proccessKeyboardInput(string &input)
             operation = frame.connectFrame();
             string name = frame.findName();
             user.setName(name);
+            isLoggedIn = true;
+            isLogged = true;
         }
     }
     else if(messageType == "join"){
@@ -135,6 +137,7 @@ void StompProtocol::processServer(string &input)
     if(messageType == "CONNECTED"){
         std::cout << "Login successful" << std::endl;
         user.setConnect(true);
+        isLogged = true;
     }
     else if(messageType == "ERROR"){
         std::cout << rFrame.getErrorMsg() << std::endl;

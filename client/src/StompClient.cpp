@@ -6,6 +6,7 @@
 #include "Frame.h"
 #include "Channel.h"
 #include "keyBoardThread.h"
+bool isLoggedIn = false;
 
 
 int main(int argc, char *argv[])
@@ -19,7 +20,7 @@ int main(int argc, char *argv[])
 	std::thread t1(&keyBoardThread::run, &kbt);
 	while(1)
 	{
-		if(isLogged)
+		if(isLoggedIn)
 		{
 			string input;
 			if(ch.getFrameAscii(input, '\0'))
@@ -41,3 +42,5 @@ int main(int argc, char *argv[])
 	return 0;
 
 }
+//login 127.0.0.1:7777 manor 9399
+//java -cp classes bgu.spl.net.impl.stomp.StompServer 7777 tpc

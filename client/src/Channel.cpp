@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <string>
+extern bool isLoggedIn;
 
 
 Channel::Channel(string name) : name(name), userUpdates() {}

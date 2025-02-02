@@ -10,8 +10,7 @@
 #include <vector>
 #include <fstream>
 #include "receivedFramesFromServer.h"
-bool isLoggedIn = false;  // Define once
-bool isLogged = false;
+extern bool isLoggedIn;
 
 
 // constructor
@@ -29,7 +28,6 @@ StompProtocol::~StompProtocol(){
 // methods
 void StompProtocol::proccessKeyboardInput(string &input)
 {
-    std::cout << "blahProtocol" << std::endl;
     Frame frame = Frame(input);
     string messageType = frame.getFrameType();
     string operation = "";
@@ -41,8 +39,6 @@ void StompProtocol::proccessKeyboardInput(string &input)
             operation = frame.connectFrame();
             string name = frame.findName();
             user.setName(name);
-            isLoggedIn = true;
-            isLogged = true;
         }
     }
     else if(messageType == "join"){
@@ -126,9 +122,11 @@ void StompProtocol::proccessKeyboardInput(string &input)
             std::cout << "Channel does not exist" << std::endl;
         }
     }
+    std::cout << operation << std::endl;
     if(operation != ""){
         ch.sendFrameAscii(operation, '\0');
     }
+
 }
 
 void StompProtocol::processServer(string &input)
@@ -138,7 +136,6 @@ void StompProtocol::processServer(string &input)
     if(messageType == "CONNECTED"){
         std::cout << "Login successful" << std::endl;
         user.setConnect(true);
-        isLogged = true;
     }
     else if(messageType == "ERROR"){
         std::cout << rFrame.getErrorMsg() << std::endl;

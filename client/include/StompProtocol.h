@@ -5,8 +5,7 @@
 #include "Frame.h"
 #include "ConnectionHandler.h"
 #include "User.h"
-extern bool isLoggedIn;
-extern bool isLogged;
+
 
 class Channel;
 

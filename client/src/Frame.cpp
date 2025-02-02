@@ -40,8 +40,7 @@ string Frame::connectFrame()
     s += "login:" + nextHeader + "\n";
     restOfCommand = restOfCommand.substr(findNextHeader + 1);
     s += "passcode:" + restOfCommand + "\n";
-    s += "accept-version:1.2\n";
-    s += '\0';
+    s += "accept-version:1.2\n\n";
     return s;
 }
 
@@ -54,8 +53,7 @@ string Frame::subscribeFrame(int subId, int recId)
     string subIdStr = std::to_string(subId);
     string recIdStr = std::to_string(recId);
     s += "id:" + subIdStr + "\n";
-    s += "receipt:" + recIdStr + "\n";
-    s += '\0';
+    s += "receipt:" + recIdStr + "\n\n";
     return s;
 
 }
@@ -66,8 +64,7 @@ string Frame::unsubscribeFrame(int subId, int recId)
     string subIdStr = std::to_string(subId);
     string recIdStr = std::to_string(recId);
     s += "id:" + subIdStr + "\n";
-    s += "receipt:" + recIdStr + "\n";
-    s += '\0';
+    s += "receipt:" + recIdStr + "\n\n";
     return s;
 }
 
@@ -75,8 +72,7 @@ string Frame::disconnectFrame(int recId)
 {
     string s = "DISCONNECT\n";
     string recIdStr = std::to_string(recId);
-    s += "receipt:" + recIdStr + "\n";
-    s += '\0';
+    s += "receipt:" + recIdStr + "\n\n";
     return s;
 }
 

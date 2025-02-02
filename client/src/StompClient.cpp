@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
 	{
 		if(isLogged)
 		{
-			std::cout << isLogged << std::endl;
 			string input;
 			if(ch.getFrameAscii(input, '\0'))
 			{

@@ -32,5 +32,4 @@ void keyBoardThread::run(){
         }
         protocol.proccessKeyboardInput(line);//will also cover if we alredy were logged in
     }
-
 }

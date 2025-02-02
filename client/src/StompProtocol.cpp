@@ -29,6 +29,7 @@ StompProtocol::~StompProtocol(){
 // methods
 void StompProtocol::proccessKeyboardInput(string &input)
 {
+    std::cout << "blahProtocol" << std::endl;
     Frame frame = Frame(input);
     string messageType = frame.getFrameType();
     string operation = "";
@@ -124,9 +125,9 @@ void StompProtocol::proccessKeyboardInput(string &input)
         else{
             std::cout << "Channel does not exist" << std::endl;
         }
-        /*if(operation != ""){
-            ch.sendFrameAscii(operation, '\0');
-        }*/
+    }
+    if(operation != ""){
+        ch.sendFrameAscii(operation, '\0');
     }
 }
 

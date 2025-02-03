@@ -16,8 +16,12 @@ int User::getReceiptId()
 
 int User::getSubId()
 {
+    return subIdCounter;
+}
+
+void User::incrementSubId()
+{
     subIdCounter++;
-    return subIdCounter - 1;
 }
 
 string User::getCommandByReceipt(int recId)
@@ -38,17 +42,14 @@ string User::getName()
 
 int User::getSubIdByChannel(string &channel)
 {
-    int id = -1;
-    unordered_map<string, int>::iterator it = channelToSubId.find(channel);
-    if (it != channelToSubId.end())
-    {
-        id = it->second;
-    }
+    auto it = channelToSubId.find(channel);
+    int id = (it != channelToSubId.end()) ? it->second : -1;
     return id;
 }
 
 void User::joinChannel(string &channel, int subId)
 {
+
     std::pair<std::string, int> newChannel(channel, subId);
     channelToSubId.insert(newChannel);
 }

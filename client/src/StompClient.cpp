@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 			{
 				if(input != "")
 				{
+					std::cout << input << std::endl;
 					sp.processServer(input);
 				}
 				else{

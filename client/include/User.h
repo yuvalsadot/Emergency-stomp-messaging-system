@@ -26,6 +26,7 @@ class User
         // getters
         int getReceiptId();
         int getSubId();
+        void incrementSubId();
         string getCommandByReceipt(int recId);
         string getName();
         int getSubIdByChannel(string &channel);

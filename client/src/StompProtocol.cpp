@@ -45,15 +45,11 @@ void StompProtocol::proccessKeyboardInput(string &input)
         int subId = user.getSubId();
         int recId = user.getReceiptId();
         operation = frame.subscribeFrame(subId, recId);
-        if(channels.find(frame.getCmd()) == channels.end()){
-            Channel *channel = new Channel(frame.getCmd());
-            std::pair<string, Channel*> newPair(frame.getCmd(), channel);
-            channels.insert(newPair);
-        }
         user.receiptCommand(recId, "Joined channel " + frame.getCmd());
     }
     else if(messageType == "exit"){
         int id = user.getSubIdByChannel(frame.getCmd());
+        std::cout << id << std::endl;
         int recId = user.getReceiptId();
         operation = frame.unsubscribeFrame(id, recId);
         channels.erase(frame.getCmd());
@@ -154,13 +150,17 @@ void StompProtocol::processServer(string &input)
         user.commandAcknowledged(recId);
         string cmd = user.getCommandByReceipt(recId);
         if(cmd != "logout"){
-            string channel = user.getCommandByReceipt(recId).substr(6);
-            if(cmd.substr(0, 1) == "j"){
-              user.joinChannel(channel, recId);
-                if (channels.find(channel) == channels.end()) {
+            size_t pos = user.getCommandByReceipt(recId).find("channel") + 8;
+            string channel = user.getCommandByReceipt(recId).substr(pos);
+            if(cmd.substr(0, 1) == "J"){
+                if(channels.find(channel) == channels.end()){
                     Channel *newChannel = new Channel(channel);
-                    channels[channel] = newChannel;
+                    std::pair<string, Channel*> newPair(channel, newChannel);
+                    channels.insert(newPair);
                 }
+                user.joinChannel(channel, user.getSubId());
+                user.incrementSubId();
+                
             }
             else{
                 user.exitChannel(channel, recId);

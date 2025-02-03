@@ -84,7 +84,7 @@ vector<string> Frame::reportFrame(string file, string user)
     for(Event event : eventsVec)
     {
         string s = "SEND\n";
-        s += "destination: " + parsedEvents.channel_name + "\n\n";
+        s += "destination:/" +  parsedEvents.channel_name + "\n\n";
         s += "user: " + user + "\n";
         s += "city: " + event.get_city() + "\n";
         s += "event name: " + event.get_channel_name() + "\n";
@@ -94,10 +94,8 @@ vector<string> Frame::reportFrame(string file, string user)
         for(auto it = generalInformation.begin(); it != generalInformation.end(); it++)
         {
             s += it->first + ": " + it->second + "\n";
-        }
-        s += '\0';
-       
-        s += "description:\n" + event.get_description() + "\n\0";
+        }       
+        s += "description:\n" + event.get_description() + "\n\n";
         events.push_back(s);
     }
     return events;

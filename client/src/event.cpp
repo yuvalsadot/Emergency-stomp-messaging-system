@@ -63,11 +63,11 @@ const std::string &Event::get_description() const
 }
 bool Event::isActive() const {
     auto it = general_information.find("active");
-    return it != general_information.end() && it->second == "true";
+    return it != general_information.end() && it->second == " true";
 }
 bool Event::isForcesArrivalAtScene() const {
     auto it = general_information.find("forces_arrival_at_scene");
-    return it != general_information.end() && it->second == "true";
+    return it != general_information.end() && it->second == " true";
 }
 
 
@@ -129,7 +129,7 @@ Event::Event(const std::string &frame_body): channel_name(""), city(""),
             }
 
             if(inGeneralInformation) {
-                general_information_from_string[key.substr(1)] = val;
+                general_information_from_string[key] = val;
             }
         }
     }

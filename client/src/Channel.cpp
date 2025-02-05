@@ -33,8 +33,12 @@ void Channel::summary(string user, string fileName) {
     if (userUpdates.find(user) != userUpdates.end()){
         for (const Event& event : userUpdates[user]) {
             totalReports++;
-            if(event.isActive()) activeReports++;
-            if(event.isForcesArrivalAtScene()) forcesAtScene++;
+            if(event.isActive()){
+                activeReports++;
+            }
+            if(event.isForcesArrivalAtScene()){
+                forcesAtScene++;
+            }
             sortedReports.push_back({user, event});
         }  
     }
@@ -48,19 +52,19 @@ void Channel::summary(string user, string fileName) {
     file << "Total: " << totalReports << std::endl;
     file << "Active: " << activeReports << std::endl;
     file << "Forces arrival at scene: " << forcesAtScene << std::endl;
-    file << "Events: " << std::endl;
+    file << "\nEvent Reports: " << std::endl;
     int reportNum = 1;
     for(const auto& report : sortedReports) {
         const Event& event = report.second;
-        file << "Report " << reportNum++ << ":" << std::endl;
-        file << "City: " << event.get_city() << std::endl;
-        file << "Date time: " << epochToDateTime(event.get_date_time()) << std::endl;
-        file << "Event name: " << event.get_name() << std::endl;
+        file << "Report_" << reportNum++ << ":" << std::endl;
+        file << "   City: " << event.get_city() << std::endl;
+        file << "   Date time: " << epochToDateTime(event.get_date_time()) << std::endl;
+        file << "   Event name: " << event.get_name() << std::endl;
         std::string summary = event.get_description().substr(0, 27);
         if (event.get_description().length() > 27) {
             summary += "...";
         }
-        file << "Summary: " << summary << std::endl;
+        file << "   Summary: " << summary << "\n" << std::endl;
     }
     file.close();
     std::cout << "Summary written to " << fileName << std::endl;

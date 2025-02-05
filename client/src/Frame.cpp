@@ -87,7 +87,7 @@ vector<string> Frame::reportFrame(string file, string user)
         s += "destination:/" +  parsedEvents.channel_name + "\n\n";
         s += "user: " + user + "\n";
         s += "city: " + event.get_city() + "\n";
-        s += "event name: " + event.get_channel_name() + "\n";
+        s += "event name: " + event.get_name() + "\n";
         s += "date time: " + std::to_string(event.get_date_time()) + "\n";
         std::map<std::string, std::string> generalInformation = event.get_general_information();  
         s += "general information: \n";
@@ -104,7 +104,7 @@ vector<string> Frame::reportFrame(string file, string user)
 string Frame::findName()
 {
     string userPass = command.substr(command.find(" ") + 1);
-    string name = " ";
+    string name = "";
     while(userPass.substr(0, 1) != " ")
     {
         name += userPass.substr(0, 1);

@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
 			{
 				if(input != "")
 				{
-					std::cout << input << std::endl;
 					sp.processServer(input);
 				}
 				else{
@@ -43,5 +42,6 @@ int main(int argc, char *argv[])
 	return 0;
 
 }
-//login 127.0.0.1:7777 manor 9399
+//login 127.0.0.1:7777 sada 9799
 //java -cp classes bgu.spl.net.impl.stomp.StompServer 7777 tpc
+// /workspaces/Assignment_3/client/data/events1.json

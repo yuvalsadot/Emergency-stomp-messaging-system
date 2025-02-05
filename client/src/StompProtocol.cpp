@@ -40,89 +40,91 @@ void StompProtocol::proccessKeyboardInput(string &input)
             string name = frame.findName();
             user.setName(name);
         }
-    }
-    else if(messageType == "join"){
-        int subId = user.getSubId();
-        int recId = user.getReceiptId();
-        operation = frame.subscribeFrame(subId, recId);
-        user.receiptCommand(recId, "Joined channel " + frame.getCmd());
-    }
-    else if(messageType == "exit"){
-        int id = user.getSubIdByChannel(frame.getCmd());
-        std::cout << id << std::endl;
-        int recId = user.getReceiptId();
-        operation = frame.unsubscribeFrame(id, recId);
-        channels.erase(frame.getCmd());
-        user.receiptCommand(recId, "Exited channel " + frame.getCmd());
-    }
-    else if(messageType == "logout"){
-        int recId = user.getReceiptId();
-        operation = frame.disconnectFrame(recId);
-        user.receiptCommand(recId, "Logged out");
-        isConnected = false;
-        isLoggedIn = false;
-        for(std::unordered_map<string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++){
-            channels.erase(it);
-            delete it->second;
+        if(operation != ""){
+            ch.sendFrameAscii(operation, '\0');
         }
-        user.resetUser();
     }
-    else if(messageType == "report"){
-        string frameName = frame.getCmd();
-        names_and_events newEvents = parseEventsFile(frameName);
-        string channel = newEvents.channel_name;
-        if(user.isSubscribed(channel)){
-            vector<string> sendFrames = frame.reportFrame(frameName, user.getName());
-            vector<Event> events = newEvents.events;
-            for(string event : sendFrames){
-                ch.sendFrameAscii(event, '\0');
+    else if (isLoggedIn){
+        if(messageType == "join"){
+            int subId = user.getSubId();
+            int recId = user.getReceiptId();
+            operation = frame.subscribeFrame(subId, recId);
+            user.receiptCommand(recId, "Joined channel " + frame.getCmd());
+        }
+        else if(messageType == "exit"){
+            int id = user.getSubIdByChannel(frame.getCmd());
+            int recId = user.getReceiptId();
+            operation = frame.unsubscribeFrame(id, recId);
+            channels.erase(frame.getCmd());
+            user.receiptCommand(recId, "Exited channel " + frame.getCmd());
+        }
+        else if(messageType == "logout"){
+            int recId = user.getReceiptId();
+            operation = frame.disconnectFrame(recId);
+            user.receiptCommand(recId, "logout");
+            isConnected = false;
+            isLoggedIn = false;
+        }
+        else if(messageType == "report"){
+            string frameName = frame.getCmd();
+            names_and_events newEvents = parseEventsFile(frameName);
+            string channel = newEvents.channel_name;
+            if(user.isSubscribed(channel)){
+                vector<string> sendFrames = frame.reportFrame(frameName, user.getName());
+                vector<Event> events = newEvents.events;
+                for(string event : sendFrames){
+                    ch.sendFrameAscii(event, '\0');
+                }
+                std::cout << "reported" << std::endl;
             }
-            for(Event event : events){
-                channels[channel]->addChannelEvent(user.getName(), event);
+            else{
+                std::cout << "User is not subscribed to the channel" << std::endl;
+            }
+        }
+        else if(messageType == "summary"){
+            string cmd = frame.getCmd();
+            // get channel name
+            string channel = "";
+            while(cmd.substr(0, 1) != " "){
+                channel += cmd.substr(0, 1);
+                cmd = cmd.substr(1);
+            }
+            cmd = cmd.substr(1);
+            // get user name
+            string name = "";
+            while(cmd.substr(0, 1) != " "){
+                name += cmd.substr(0, 1);
+                cmd = cmd.substr(1);
+            }
+            cmd = cmd.substr(1);
+            // get file name
+            string fileName = "";
+            int i = 0;
+            int len = cmd.length();
+            while(i < len){
+                fileName += cmd.substr(0, 1);
+                cmd = cmd.substr(1);
+                i++;
+            }
+            std::unordered_map<string, Channel*>::iterator it = channels.find(channel);
+            if(it != channels.end()){
+                it->second->summary(name, fileName);
+            }
+            else{
+                std::cout << "Channel does not exist" << std::endl;
             }
         }
         else{
-            std::cout << "User is not subscribed to the channel" << std::endl;
+            std::cout << "Invalid command" << std::endl;
         }
-    }
-    else if(messageType == "summary"){
-        string cmd = frame.getCmd();
-        // get channel name
-        string channel = "";
-        while(cmd.substr(0, 1) != " "){
-            channel += cmd.substr(0, 1);
-            cmd = cmd.substr(1);
-        }
-        cmd = cmd.substr(1);
-        // get user name
-        string name = "";
-        while(cmd.substr(0, 1) != " "){
-            name += cmd.substr(0, 1);
-            cmd = cmd.substr(1);
-        }
-        cmd = cmd.substr(1);
-        // get file name
-        string fileName = "";
-        int i = 0;
-        int len = cmd.length();
-        while(i < len){
-            fileName += cmd.substr(0, 1);
-            cmd = cmd.substr(1);
-            i++;
-        }
-        std::unordered_map<string, Channel*>::iterator it = channels.find(channel);
-        if(it != channels.end()){
-            it->second->summary(name, fileName);
-        }
-        else{
-            std::cout << "Channel does not exist" << std::endl;
-        }
-    }
-    std::cout << operation << std::endl;
-    if(operation != ""){
-        ch.sendFrameAscii(operation, '\0');
-    }
 
+        if(operation != ""){
+            ch.sendFrameAscii(operation, '\0');
+        }
+    }
+    else{
+        std::cout << "You need to log in first" << std::endl;
+    }
 }
 
 void StompProtocol::processServer(string &input)
@@ -159,8 +161,7 @@ void StompProtocol::processServer(string &input)
                     channels.insert(newPair);
                 }
                 user.joinChannel(channel, user.getSubId());
-                user.incrementSubId();
-                
+                user.incrementSubId();                
             }
             else{
                 user.exitChannel(channel, recId);
@@ -174,15 +175,9 @@ void StompProtocol::processServer(string &input)
         }
         else{
             std::cout << "user is logged out" << std::endl;
-            isConnected = false;
-            isLoggedIn = false;
-            int size = channels.size();
-            for(std::unordered_map<string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++){
-                if(size > 0){
-                    channels.erase(it);
-                    delete it->second;
-                }
-                size--;
+            for(auto it = channels.begin(); it != channels.end();){
+                delete it->second;
+                it = channels.erase(it);
             }
             user.resetUser();
             ch.close();
@@ -193,18 +188,13 @@ void StompProtocol::processServer(string &input)
         // get channel name
         string tmp = frame;
         string channelName = "";
-        for(int i = 0; i < 5; i ++){
-            int end = tmp.find("\n");
-            if(tmp.substr(0, 12) == "destination:/"){
-                channelName = tmp.substr(13, end - 13);
-            }
-            else{
-                tmp = tmp.substr(end + 1);
-            }
-        }
+        int start = tmp.find("destination:/") + 13;
+        int end = tmp.find("\n", start) - 1;
+        channelName = tmp.substr(start, end - start + 1);
         // add event to channel by username
         string sendingUser = rFrame.getSendingUser();
-        Event *event = new Event(frame);
+        int startBody = tmp.find("\n\n") + 2;
+        Event *event = new Event(frame.substr(startBody));
         channels[channelName]->addChannelEvent(sendingUser, *event);
     }     
 }
